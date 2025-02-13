@@ -83,8 +83,25 @@ class SerialApp(QWidget):
                         self.messages.append(buffer)
                         hex_str = " ".join(f"0x{b:02X}" for b in buffer)
 
-                        item = QListWidgetItem(f"Received: {hex_str}")  # Create a list item
-                        item.setForeground(QBrush(QColor("blue")))  # Set text color to blue
+                        decoded = cobs.decode(buffer[:-1])
+                        spp_header = SPP_decode(decoded[:6])
+                        pus_header = PUS_TM_decode(decoded[6:15])
+
+
+                        
+                        if(spp_header.packet_type == 0 and pus_header.service_id == 1):
+                            if(pus_header.subtype_id == 1):
+                                item = QListWidgetItem(f"Received: ACK ACC OK {hex_str}")  # Create a list item
+                            elif(pus_header.subtype_id == 3):
+                                item = QListWidgetItem(f"Received: ACK START OK {hex_str}")  # Create a list item
+                            elif(pus_header.subtype_id == 5):
+                                item = QListWidgetItem(f"Received: ACK EXE OK {hex_str}")  # Create a list item
+                            elif(pus_header.subtype_id == 7):
+                                item = QListWidgetItem(f"Received: ACK FINISH OK {hex_str}")  # Create a list item
+                            item.setForeground(QBrush(QColor("purple")))  # Set text color to blue
+                        else:
+                            item = QListWidgetItem(f"Received: {hex_str}")  # Create a list item
+                            item.setForeground(QBrush(QColor("blue")))  # Set text color to blue
                         self.msg_list.addItem(item)
 
                         buffer = bytearray()

@@ -76,7 +76,7 @@ def build_msg_SPP_PUS_Data_CRC(service_id, sub_service_id, command_data):
     spp_header.simple_TC(shf = 1, apid = 22, dl = PUS_TC_HEADER_LEN + len(data) + 1)
 
     pus_header = PUS_TC_header()
-    pus_header.simple_TC(ack=0, serv_id=service_id.value, sub_id=sub_service_id.value)
+    pus_header.simple_TC(ack=15, serv_id=service_id.value, sub_id=sub_service_id.value)
 
     encoded_spp_header = spp_header.SPP_encode()
     encoded_pus_header = pus_header.PUS_TC_encode()
