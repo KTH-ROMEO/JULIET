@@ -11,6 +11,7 @@ from SPP import *
 from crc import Calculator, Crc16
 from cobs import cobs
 from Build_UART_msg import *
+from decode_msg_data import *
 
 class SerialApp(QWidget):
     def __init__(self):
@@ -37,9 +38,17 @@ class SerialApp(QWidget):
         splitter.addWidget(self.details_edit)
 
         # Buttons
-        self.send_button_1 = QPushButton('Activate periodic HK data')
-        self.send_button_2 = QPushButton('Activate one shot HK data')
-        self.send_button_3 = QPushButton('Deactivate periodic HK data')
+        self.send_button_1 = QPushButton('Activate periodic HK data for MCU')
+        self.send_button_2 = QPushButton('Activate periodic HK data for FPGA')
+        self.send_button_3 = QPushButton('Activate periodic HK data for MCU & FPGA')
+        self.send_button_4 = QPushButton('Activate one shot HK data for MCU')
+        self.send_button_5 = QPushButton('Activate one shot HK data for FPGA')
+        self.send_button_6 = QPushButton('Activate one shot HK data for MCU & FPGA')
+        self.send_button_7 = QPushButton('Deactivate periodic HK data for MCU')
+        self.send_button_8 = QPushButton('Deactivate periodic HK data for FPGA')
+        self.send_button_9 = QPushButton('Deactivate periodic HK data for MCU & FPGA')
+        self.send_button_10 = QPushButton('Send test TC')
+        self.clear_button = QPushButton('Clear Console')
 
         # Connect buttons
         self.send_button_1.clicked.connect(
@@ -48,18 +57,57 @@ class SerialApp(QWidget):
                                       command_data=Command_data.HK_UC))
         self.send_button_2.clicked.connect(
             lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID,
+                                      sub_service_id=PUS_HK_Subtype_ID.HK_EN_PERIODIC_REPORTS,
+                                      command_data=Command_data.HK_FPGA))
+        self.send_button_3.clicked.connect(
+            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID,
+                                      sub_service_id=PUS_HK_Subtype_ID.HK_EN_PERIODIC_REPORTS,
+                                      command_data=Command_data.HK_UC_FPGA))
+        self.send_button_4.clicked.connect(
+            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID,
                                       sub_service_id=PUS_HK_Subtype_ID.HK_ONE_SHOT,
                                       command_data=Command_data.HK_UC))
-        self.send_button_3.clicked.connect(
+        self.send_button_5.clicked.connect(
+            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID,
+                                      sub_service_id=PUS_HK_Subtype_ID.HK_ONE_SHOT,
+                                      command_data=Command_data.HK_FPGA))
+        self.send_button_6.clicked.connect(
+            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID,
+                                      sub_service_id=PUS_HK_Subtype_ID.HK_ONE_SHOT,
+                                      command_data=Command_data.HK_UC_FPGA))
+        self.send_button_7.clicked.connect(
             lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID,
                                       sub_service_id=PUS_HK_Subtype_ID.HK_DIS_PERIODIC_REPORTS,
                                       command_data=Command_data.HK_UC))
+        self.send_button_8.clicked.connect(
+            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID,
+                                      sub_service_id=PUS_HK_Subtype_ID.HK_DIS_PERIODIC_REPORTS,
+                                      command_data=Command_data.HK_FPGA))
+        self.send_button_9.clicked.connect(
+            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID,
+                                      sub_service_id=PUS_HK_Subtype_ID.HK_DIS_PERIODIC_REPORTS,
+                                      command_data=Command_data.HK_UC_FPGA))
+        
+        self.send_button_10.clicked.connect(
+            lambda: self.send_command(service_id=PUS_Service_ID.TEST_SERVICE_ID,
+                                      sub_service_id=PUS_TEST_Subtype_ID.T_ARE_YOU_ALIVE_TEST_ID,
+                                      command_data=Command_data.EMPTY))
+        
+        self.clear_button.clicked.connect(lambda: self.clear_console())
 
         # Assemble layout
         main_layout.addWidget(splitter)
         main_layout.addWidget(self.send_button_1)
         main_layout.addWidget(self.send_button_2)
         main_layout.addWidget(self.send_button_3)
+        main_layout.addWidget(self.send_button_4)
+        main_layout.addWidget(self.send_button_5)
+        main_layout.addWidget(self.send_button_6)
+        main_layout.addWidget(self.send_button_7)
+        main_layout.addWidget(self.send_button_8)
+        main_layout.addWidget(self.send_button_9)
+        main_layout.addWidget(self.send_button_10)
+        main_layout.addWidget(self.clear_button)
         self.setLayout(main_layout)
         self.show()
 
@@ -159,10 +207,37 @@ class SerialApp(QWidget):
                 details.append(f"  Time: {pus_header.time}")
                 details.append(f"")
 
+                if pus_header.service_id == PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value and pus_header.subtype_id == PUS_HK_Subtype_ID.HK_PARAMETER_REPORT.value:
+                    print(decoded)
+                    SID = (decoded[15] | (decoded[16] << 8))
+                    if SID == 0xAAAA:
+                        print("GOT HERE")
+                        HK_report = HK_uC_Report()
+                        HK_report.vbat_i = decoded[20] << 24 | decoded[19] << 16 | decoded[18] << 8 | decoded[17] 
+                        HK_report.temperature_i = decoded[24] << 24 | decoded[23] << 16 | decoded[22] << 8 | decoded[21] 
+                        HK_report.uc3v_i = decoded[28] << 24 | decoded[27] << 16 | decoded[26] << 8 | decoded[25] 
+                        details.append("\nMicrocontroller Report Data:")
+                        details.append(f"  VBAT_I: {HK_report.vbat_i}")
+                        details.append(f"  TEMPERATURE_I: {HK_report.temperature_i}")
+                        details.append(f"  UC3V_I: {HK_report.uc3v_i}")
+
+                    if SID == 0x5555:
+                        print("GOT HERE")
+                        HK_report = HK_FPGA_Report()
+                        HK_report.fpga1p5v_i = decoded[20] << 24 | decoded[19] << 16 | decoded[18] << 8 | decoded[17] 
+                        HK_report.fpga3v_i = decoded[24] << 24 | decoded[23] << 16 | decoded[22] << 8 | decoded[21] 
+                        details.append("\nFPGA Report Data:")
+                        details.append(f"  FPGA_1P5V_I: {HK_report.fpga1p5v_i}")
+                        details.append(f"  FPGA_3V_I: {HK_report.fpga3v_i}")
+
             else:
                 details.append("\nPUS Header: Not available or decode failed")
         
         self.details_edit.setText("\n".join(details))
+
+    def clear_console(self):
+        self.msg_list.clear()
+        self.messages.clear()  # Also clear stored messages if needed
 
     def send_command(self, service_id, sub_service_id, command_data):
         cobs_msg = build_msg_SPP_PUS_Data_CRC(service_id, sub_service_id, command_data)

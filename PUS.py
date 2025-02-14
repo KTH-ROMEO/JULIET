@@ -16,10 +16,17 @@ class PUS_HK_Subtype_ID(Enum):
     HK_PARAMETER_REPORT                     = 25 
     HK_ONE_SHOT                             = 27
 
+class PUS_TEST_Subtype_ID(Enum):
+    T_ARE_YOU_ALIVE_TEST_ID                 = 1
+    T_ARE_YOU_ALIVE_TEST_REPORT_ID          = 2
+    T_ON_BOARD_CONN_TEST_ID                 = 3
+    T_ON_BOARD_CONN_TEST_REPORT_ID          = 4
 
 class Command_data(Enum):
     HK_UC                                   = [0x01, 0x00, 0xAA, 0xAA]
     HK_FPGA                                 = [0x01, 0x00, 0x55, 0x55] 
+    HK_UC_FPGA                              = [0x02, 0x00, 0x55, 0x55, 0xAA, 0xAA] 
+    EMPTY                                   = [0x00]
 
 
 class PUS_TC_header:
