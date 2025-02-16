@@ -1,4 +1,5 @@
 from enum import Enum
+from Command_Data import *
 
 class PUS_Service_ID(Enum):
     REQUEST_VERIFICATION_SERVICE_ID         = 1
@@ -22,11 +23,8 @@ class PUS_TEST_Subtype_ID(Enum):
     T_ON_BOARD_CONN_TEST_ID                 = 3
     T_ON_BOARD_CONN_TEST_REPORT_ID          = 4
 
-class Command_data(Enum):
-    HK_UC                                   = [0x01, 0x00, 0xAA, 0xAA]
-    HK_FPGA                                 = [0x01, 0x00, 0x55, 0x55] 
-    HK_UC_FPGA                              = [0x02, 0x00, 0x55, 0x55, 0xAA, 0xAA] 
-    EMPTY                                   = [0x00]
+class PUS_FM_Subtype_ID(Enum):
+    FM_PERFORM_FUNCTION                     = 1
 
 
 class PUS_TC_header:

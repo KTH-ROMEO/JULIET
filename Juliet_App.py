@@ -25,17 +25,17 @@ class SerialApp(QWidget):
         main_layout = QVBoxLayout()
 
         # Splitter for raw messages and decoded details
-        splitter = QSplitter(Qt.Horizontal)
+        splitter1 = QSplitter(Qt.Horizontal)
 
         # Left Panel: Raw Messages
         self.msg_list = QListWidget()
         self.msg_list.itemClicked.connect(self.show_decoded_details)
-        splitter.addWidget(self.msg_list)
+        splitter1.addWidget(self.msg_list)
 
         # Right Panel: Decoded Details
         self.details_edit = QTextEdit()
         self.details_edit.setReadOnly(True)
-        splitter.addWidget(self.details_edit)
+        splitter1.addWidget(self.details_edit)
 
         # Buttons
         self.send_button_1 = QPushButton('Activate periodic HK data for MCU')
@@ -48,6 +48,10 @@ class SerialApp(QWidget):
         self.send_button_8 = QPushButton('Deactivate periodic HK data for FPGA')
         self.send_button_9 = QPushButton('Deactivate periodic HK data for MCU & FPGA')
         self.send_button_10 = QPushButton('Send test TC')
+        self.send_button_11 = QPushButton('Send Sweep Table Step Voltage')
+        self.send_button_12 = QPushButton('Get Sweep Table Step Voltage')
+        # self.set_SWT_data = QPushButton('Set Sweep Table data')
+        # self.Get_SWT_data = QPushButton('Get Sweep Table data')
         self.clear_button = QPushButton('Clear Console')
 
         # Connect buttons
@@ -91,22 +95,38 @@ class SerialApp(QWidget):
         self.send_button_10.clicked.connect(
             lambda: self.send_command(service_id=PUS_Service_ID.TEST_SERVICE_ID,
                                       sub_service_id=PUS_TEST_Subtype_ID.T_ARE_YOU_ALIVE_TEST_ID,
-                                      command_data=Command_data.EMPTY))
+                                      command_data=Command_data.TS_EMPTY))
+        
+        self.send_button_11.clicked.connect(
+            lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID,
+                                      sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION,
+                                      command_data=Command_data.FM_SET_VOLTAGE_LEVEL_SWEEP_MODE))
+        
+        self.send_button_12.clicked.connect(
+            lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID,
+                                      sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION,
+                                      command_data=Command_data.FM_GET_VOLTAGE_LEVEL_SWEEP_MODE_FRAM))
+
         
         self.clear_button.clicked.connect(lambda: self.clear_console())
 
         # Assemble layout
-        main_layout.addWidget(splitter)
+        main_layout.addWidget(splitter1)
+
+        splitter2 = QSplitter(Qt.Horizontal)
         main_layout.addWidget(self.send_button_1)
         main_layout.addWidget(self.send_button_2)
         main_layout.addWidget(self.send_button_3)
         main_layout.addWidget(self.send_button_4)
         main_layout.addWidget(self.send_button_5)
         main_layout.addWidget(self.send_button_6)
+        # TO DO: split buttons right and left
         main_layout.addWidget(self.send_button_7)
         main_layout.addWidget(self.send_button_8)
         main_layout.addWidget(self.send_button_9)
         main_layout.addWidget(self.send_button_10)
+        main_layout.addWidget(self.send_button_11)
+        main_layout.addWidget(self.send_button_12)
         main_layout.addWidget(self.clear_button)
         self.setLayout(main_layout)
         self.show()
@@ -229,6 +249,11 @@ class SerialApp(QWidget):
                         details.append("\nFPGA Report Data:")
                         details.append(f"  FPGA_1P5V_I: {HK_report.fpga1p5v_i}")
                         details.append(f"  FPGA_3V_I: {HK_report.fpga3v_i}")
+                
+                elif pus_header.service_id == PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value and pus_header.subtype_id == PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value:
+                    print("GOT HERE")
+                    hex_str = " ".join(f"0x{b:02X}" for b in decoded)
+                    print(hex_str)
 
             else:
                 details.append("\nPUS Header: Not available or decode failed")
