@@ -14,6 +14,13 @@ class HK_FPGA_Report:
         self.fpga3v_i           = 0
         self.fpga1p5v_i         = 0
 
+class FM_Sweep_Table_Report:
+    def __init__(self):
+        self.target             = 0
+        self.sweep_table_id     = 0
+        self.step_id            = 0
+        self.voltage_level      = 0
+
 
 def decode_HK_data():
     pass
