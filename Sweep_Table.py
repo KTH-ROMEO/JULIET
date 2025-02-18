@@ -3,6 +3,7 @@ import numpy as np
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QDialog
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+import pandas as pd
 
 class uC_Sweet_Tables:
     def __init__(self):
@@ -34,3 +35,15 @@ class PlotWindow(QDialog):
         
         # Draw the canvas
         self.canvas.draw()
+
+class Excel_table:
+    def __init__(self):
+        self.file_path = "Sweep_Tables_Examples.xlsx"
+        self.xlsx_file = pd.read_excel(self.file_path, engine='openpyxl')
+        self.column_name = "Table 2"  # Change this to your actual column name
+        self.data_list = self.xlsx_file[self.column_name].tolist()
+        print(self.data_list)
+
+if __name__ == "__main__":
+    table = Excel_table()
+

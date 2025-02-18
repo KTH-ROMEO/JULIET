@@ -66,56 +66,54 @@ class SerialApp(QWidget):
 
         # Connect buttons
         self.send_button_1.clicked.connect(
-            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID,
-                                      sub_service_id=PUS_HK_Subtype_ID.HK_EN_PERIODIC_REPORTS,
-                                      command_data=Command_data.HK_UC))
+            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
+                                      sub_service_id=PUS_HK_Subtype_ID.HK_EN_PERIODIC_REPORTS.value,
+                                      command_data=Command_data.HK_UC.value))
         self.send_button_2.clicked.connect(
-            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID,
-                                      sub_service_id=PUS_HK_Subtype_ID.HK_EN_PERIODIC_REPORTS,
-                                      command_data=Command_data.HK_FPGA))
+            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
+                                      sub_service_id=PUS_HK_Subtype_ID.HK_EN_PERIODIC_REPORTS.value,
+                                      command_data=Command_data.HK_FPGA.value))
         self.send_button_3.clicked.connect(
-            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID,
-                                      sub_service_id=PUS_HK_Subtype_ID.HK_EN_PERIODIC_REPORTS,
-                                      command_data=Command_data.HK_UC_FPGA))
+            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
+                                      sub_service_id=PUS_HK_Subtype_ID.HK_EN_PERIODIC_REPORTS.value,
+                                      command_data=Command_data.HK_UC_FPGA.value))
         self.send_button_4.clicked.connect(
-            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID,
-                                      sub_service_id=PUS_HK_Subtype_ID.HK_ONE_SHOT,
-                                      command_data=Command_data.HK_UC))
+            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
+                                      sub_service_id=PUS_HK_Subtype_ID.HK_ONE_SHOT.value,
+                                      command_data=Command_data.HK_UC.value))
         self.send_button_5.clicked.connect(
-            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID,
-                                      sub_service_id=PUS_HK_Subtype_ID.HK_ONE_SHOT,
-                                      command_data=Command_data.HK_FPGA))
+            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
+                                      sub_service_id=PUS_HK_Subtype_ID.HK_ONE_SHOT.value,
+                                      command_data=Command_data.HK_FPGA.value))
         self.send_button_6.clicked.connect(
-            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID,
-                                      sub_service_id=PUS_HK_Subtype_ID.HK_ONE_SHOT,
-                                      command_data=Command_data.HK_UC_FPGA))
+            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
+                                      sub_service_id=PUS_HK_Subtype_ID.HK_ONE_SHOT.value,
+                                      command_data=Command_data.HK_UC_FPGA.value))
         self.send_button_7.clicked.connect(
-            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID,
-                                      sub_service_id=PUS_HK_Subtype_ID.HK_DIS_PERIODIC_REPORTS,
-                                      command_data=Command_data.HK_UC))
+            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
+                                      sub_service_id=PUS_HK_Subtype_ID.HK_DIS_PERIODIC_REPORTS.value,
+                                      command_data=Command_data.HK_UC.value))
         self.send_button_8.clicked.connect(
-            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID,
-                                      sub_service_id=PUS_HK_Subtype_ID.HK_DIS_PERIODIC_REPORTS,
-                                      command_data=Command_data.HK_FPGA))
+            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
+                                      sub_service_id=PUS_HK_Subtype_ID.HK_DIS_PERIODIC_REPORTS.value,
+                                      command_data=Command_data.HK_FPGA.value))
         self.send_button_9.clicked.connect(
-            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID,
-                                      sub_service_id=PUS_HK_Subtype_ID.HK_DIS_PERIODIC_REPORTS,
-                                      command_data=Command_data.HK_UC_FPGA))
+            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
+                                      sub_service_id=PUS_HK_Subtype_ID.HK_DIS_PERIODIC_REPORTS.value,
+                                      command_data=Command_data.HK_UC_FPGA.value))
         
         self.send_button_10.clicked.connect(
-            lambda: self.send_command(service_id=PUS_Service_ID.TEST_SERVICE_ID,
-                                      sub_service_id=PUS_TEST_Subtype_ID.T_ARE_YOU_ALIVE_TEST_ID,
-                                      command_data=Command_data.TS_EMPTY))
-        
+            lambda: self.send_command(service_id=PUS_Service_ID.TEST_SERVICE_ID.value,
+                                      sub_service_id=PUS_TEST_Subtype_ID.T_ARE_YOU_ALIVE_TEST_ID.value,
+                                      command_data=Command_data.TS_EMPTY.value))
+
         self.send_button_11.clicked.connect(
-            lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID,
-                                      sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION,
-                                      command_data=Command_data.FM_SET_VOLTAGE_LEVEL_SWEEP_MODE))
-        
+            lambda: self.set_sweep_table()
+        )
+
         self.send_button_12.clicked.connect(
-            lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID,
-                                      sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION,
-                                      command_data=Command_data.FM_GET_VOLTAGE_LEVEL_SWEEP_MODE_FRAM))
+            lambda: self.get_sweep_table()
+        )
         
         self.uC_SW_T_0.clicked.connect(
             lambda: self.show_sw_table(0))
@@ -201,8 +199,9 @@ class SerialApp(QWidget):
                         spp_header = SPP_decode(decoded[:6])
                         pus_header = PUS_TM_decode(decoded[6:15])
 
+                        # hex_decoded = " ".join(f"0x{b:02X}" for b in decoded)
+                        # print(hex_decoded)
 
-                        
                         if(spp_header.packet_type == 0 and pus_header.service_id == 1):
                             if(pus_header.subtype_id == 1):
                                 item = QListWidgetItem(f"Received: ACK ACC OK {hex_str}")  # Create a list item
@@ -320,6 +319,40 @@ class SerialApp(QWidget):
     def show_sw_table(self, index):
         plot_window = PlotWindow(self.uC_Sweep_Tables.Table[index], self)
         plot_window.exec_()
+
+    def set_sweep_table(self):
+        table_index = 7
+        table = Excel_table()
+        for i in range(256):
+            voltage_level = table.data_list[i]
+            data = [Function_ID.SET_SWT_VOL_LVL_ID.value, 
+                    0x04,   
+                    Argument_ID.PROBE_ID_ARG_ID.value,     table_index,  
+                    Argument_ID.STEP_ID_ARG_ID.value,      i,   
+                    Argument_ID.VOL_LVL_ARG_ID.value,      voltage_level & 0xFF, (voltage_level >> 8) & 0xFF,
+                    Argument_ID.GS_TARGET_ARG_ID.value,    0x01]
+            
+            print(table.data_list[i])
+            print(voltage_level & 0xFF, (voltage_level >> 8) & 0xFF)
+            self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=data)
+            time.sleep(0.5)
+            
+
+    def get_sweep_table(self):
+        table_index = 7
+        for i in range(256):
+            data = [Function_ID.GET_SWT_VOL_LVL_ID.value, 
+                    0x03,   
+                    Argument_ID.PROBE_ID_ARG_ID.value,     table_index,  
+                    Argument_ID.STEP_ID_ARG_ID.value,      i,  
+                    Argument_ID.GS_TARGET_ARG_ID.value,    0x01]
+            
+            self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=data)
+            time.sleep(0.5)
 
     def send_command(self, service_id, sub_service_id, command_data):
         cobs_msg = build_msg_SPP_PUS_Data_CRC(service_id, sub_service_id, command_data)
