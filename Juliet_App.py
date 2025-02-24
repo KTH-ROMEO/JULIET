@@ -52,6 +52,8 @@ class SerialApp(QWidget):
         self.send_button_10 = QPushButton('Send test TC')
         self.send_button_11 = QPushButton('Send Sweep Table Step Voltage')
         self.send_button_12 = QPushButton('Get Sweep Table Step Voltage')
+        self.send_button_13 = QPushButton('Send Set Msg to FPGA')
+        self.send_button_14 = QPushButton('Send Get Msg to FPGA')
         # self.set_SWT_data = QPushButton('Set Sweep Table data')
         # self.Get_SWT_data = QPushButton('Get Sweep Table data')
         self.clear_button = QPushButton('Clear Console')
@@ -114,6 +116,18 @@ class SerialApp(QWidget):
         self.send_button_12.clicked.connect(
             lambda: self.get_sweep_table()
         )
+
+        self.send_button_13.clicked.connect(
+            lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=Command_data.FM_SET_VOLTAGE_LEVEL_SWEEP_MODE_FPGA.value)
+        )
+
+        self.send_button_14.clicked.connect(
+            lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=Command_data.FM_GET_VOLTAGE_LEVEL_SWEEP_MODE_FRAM_FPGA.value)
+        )
         
         self.uC_SW_T_0.clicked.connect(
             lambda: self.show_sw_table(0))
@@ -165,8 +179,10 @@ class SerialApp(QWidget):
         main_layout.addWidget(self.uC_SW_T_6, 3, 2, 2, 1)
         main_layout.addWidget(self.uC_SW_T_7, 3, 3, 2, 1)
 
-        main_layout.addWidget(self.clear_button, 6, 0, 1, 2)
-        main_layout.addWidget(splitter1, 7, 0, 2, 4)
+        main_layout.addWidget(self.clear_button, 6, 0)
+        main_layout.addWidget(self.send_button_13, 6, 1)
+        main_layout.addWidget(self.send_button_14, 7, 0)
+        main_layout.addWidget(splitter1, 8, 0, 2, 4)
 
         # Assemble layout
         # main_layout.addWidget(splitter1)
@@ -195,29 +211,39 @@ class SerialApp(QWidget):
                         self.messages.append(buffer)
                         hex_str = " ".join(f"0x{b:02X}" for b in buffer)
 
+                        # print(hex_str)
                         decoded = cobs.decode(buffer[:-1])
                         spp_header = SPP_decode(decoded[:6])
-                        pus_header = PUS_TM_decode(decoded[6:15])
 
-                        # hex_decoded = " ".join(f"0x{b:02X}" for b in decoded)
+                        if(spp_header.sec_head_flag == 1):
+                            pus_header = PUS_TM_decode(decoded[6:15])
+
+                        hex_decoded = " ".join(f"0x{b:02X}" for b in decoded)
                         # print(hex_decoded)
 
-                        if(spp_header.packet_type == 0 and pus_header.service_id == 1):
-                            if(pus_header.subtype_id == 1):
-                                item = QListWidgetItem(f"Received: ACK ACC OK {hex_str}")  # Create a list item
-                            elif(pus_header.subtype_id == 3):
-                                item = QListWidgetItem(f"Received: ACK START OK {hex_str}")  # Create a list item
-                            elif(pus_header.subtype_id == 5):
-                                item = QListWidgetItem(f"Received: ACK EXE OK {hex_str}")  # Create a list item
-                            elif(pus_header.subtype_id == 7):
-                                item = QListWidgetItem(f"Received: ACK FINISH OK {hex_str}")  # Create a list item
-                            item.setForeground(QBrush(QColor("purple")))  # Set text color to blue
-                        else:
-                            if spp_header.packet_type == 0 and pus_header.service_id == 8 and pus_header.subtype_id == 1:
-                                self.uC_Sweep_Tables.Table[decoded[16]][decoded[17]] = decoded[18] | decoded[19] << 8
+                        if spp_header.packet_type == 0 and spp_header.sec_head_flag == 1:
+                            if pus_header.service_id == 1:
+                                if(pus_header.subtype_id == 1):
+                                    item = QListWidgetItem(f"Received: ACK ACC OK {hex_str}")  # Create a list item
+                                elif(pus_header.subtype_id == 3):
+                                    item = QListWidgetItem(f"Received: ACK START OK {hex_str}")  # Create a list item
+                                elif(pus_header.subtype_id == 5):
+                                    item = QListWidgetItem(f"Received: ACK EXE OK {hex_str}")  # Create a list item
+                                elif(pus_header.subtype_id == 7):
+                                    item = QListWidgetItem(f"Received: ACK FINISH OK {hex_str}")  # Create a list item
+                                item.setForeground(QBrush(QColor("purple")))  # Set text color to blue
+                            else:
+                                if spp_header.packet_type == 0 and pus_header.service_id == 8 and pus_header.subtype_id == 1:
+                                    self.uC_Sweep_Tables.Table[decoded[16]][decoded[17]] = decoded[18] | decoded[19] << 8
+                                item = QListWidgetItem(f"Received: {hex_str}")  # Create a list item
+                                item.setForeground(QBrush(QColor("blue")))  # Set text color to blue
+                            self.msg_list.addItem(item)
+
+                        elif spp_header.packet_type == 0 and spp_header.sec_head_flag == 0:
+                            print(hex_decoded)
                             item = QListWidgetItem(f"Received: {hex_str}")  # Create a list item
-                            item.setForeground(QBrush(QColor("blue")))  # Set text color to blue
-                        self.msg_list.addItem(item)
+                            item.setForeground(QBrush(QColor("red")))  # Set text color to blue
+                            self.msg_list.addItem(item)
 
                         buffer = bytearray()
                         started = False
@@ -309,6 +335,10 @@ class SerialApp(QWidget):
 
             else:
                 details.append("\nPUS Header: Not available or decode failed")
+        elif spp_header.sec_head_flag == 0:
+            if decoded[6] == 0xCC:
+                details.append("\nConstant Bias Info:")
+                details.append(f"  Voltage Level: {decoded[7]} {decoded[8]}")
         
         self.details_edit.setText("\n".join(details))
 
@@ -321,9 +351,9 @@ class SerialApp(QWidget):
         plot_window.exec_()
 
     def set_sweep_table(self):
-        table_index = 7
+        table_index = 2
         table = Excel_table()
-        for i in range(256):
+        for i in range(10):
             voltage_level = table.data_list[i]
             data = [Function_ID.SET_SWT_VOL_LVL_ID.value, 
                     0x04,   
@@ -341,8 +371,8 @@ class SerialApp(QWidget):
             
 
     def get_sweep_table(self):
-        table_index = 7
-        for i in range(256):
+        table_index = 2
+        for i in range(10):
             data = [Function_ID.GET_SWT_VOL_LVL_ID.value, 
                     0x03,   
                     Argument_ID.PROBE_ID_ARG_ID.value,     table_index,  
@@ -372,3 +402,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    
