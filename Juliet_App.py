@@ -11,8 +11,12 @@ from SPP import *
 from crc import Calculator, Crc16
 from cobs import cobs
 from Build_UART_msg import *
-from decode_msg_data import *
+from Decode_Msg import *
 from Sweep_Table import *
+from SubWindow import *
+from HK_Buttons import *
+from SweepTable_MCU_Buttons import *
+from FM_Buttons import *
 
 class SerialApp(QWidget):
     def __init__(self):
@@ -39,157 +43,110 @@ class SerialApp(QWidget):
         self.details_edit.setReadOnly(True)
         splitter1.addWidget(self.details_edit)
 
-        # Buttons
-        self.send_button_1 = QPushButton('Activate periodic HK data for MCU')
-        self.send_button_2 = QPushButton('Activate periodic HK data for FPGA')
-        self.send_button_3 = QPushButton('Activate periodic HK data for MCU & FPGA')
-        self.send_button_4 = QPushButton('Activate one shot HK data for MCU')
-        self.send_button_5 = QPushButton('Activate one shot HK data for FPGA')
-        self.send_button_6 = QPushButton('Activate one shot HK data for MCU & FPGA')
-        self.send_button_7 = QPushButton('Deactivate periodic HK data for MCU')
-        self.send_button_8 = QPushButton('Deactivate periodic HK data for FPGA')
-        self.send_button_9 = QPushButton('Deactivate periodic HK data for MCU & FPGA')
-        self.send_button_10 = QPushButton('Send test TC')
-        self.send_button_11 = QPushButton('Send Sweep Table Step Voltage')
-        self.send_button_12 = QPushButton('Get Sweep Table Step Voltage')
-        self.send_button_13 = QPushButton('Send Set Msg to FPGA')
-        self.send_button_14 = QPushButton('Send Get Msg to FPGA')
-        # self.set_SWT_data = QPushButton('Set Sweep Table data')
-        # self.Get_SWT_data = QPushButton('Get Sweep Table data')
+        self.hk_button = QPushButton('Housekeeping Commands')
+        self.sweep_tables_MCU = QPushButton('Sweep Tables MCU')
+        self.fm_button = QPushButton('FM Commands')
         self.clear_button = QPushButton('Clear Console')
-        self.uC_SW_T_0 = QPushButton('Sweep Table 0')
-        self.uC_SW_T_1 = QPushButton('Sweep Table 1')
-        self.uC_SW_T_2 = QPushButton('Sweep Table 2')
-        self.uC_SW_T_3 = QPushButton('Sweep Table 3')
-        self.uC_SW_T_4 = QPushButton('Sweep Table 4')
-        self.uC_SW_T_5 = QPushButton('Sweep Table 5')
-        self.uC_SW_T_6 = QPushButton('Sweep Table 6')
-        self.uC_SW_T_7 = QPushButton('Sweep Table 7')
+        self.test_button = QPushButton('Test Command')
 
-        # Connect buttons
-        self.send_button_1.clicked.connect(
-            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
-                                      sub_service_id=PUS_HK_Subtype_ID.HK_EN_PERIODIC_REPORTS.value,
-                                      command_data=Command_data.HK_UC.value))
-        self.send_button_2.clicked.connect(
-            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
-                                      sub_service_id=PUS_HK_Subtype_ID.HK_EN_PERIODIC_REPORTS.value,
-                                      command_data=Command_data.HK_FPGA.value))
-        self.send_button_3.clicked.connect(
-            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
-                                      sub_service_id=PUS_HK_Subtype_ID.HK_EN_PERIODIC_REPORTS.value,
-                                      command_data=Command_data.HK_UC_FPGA.value))
-        self.send_button_4.clicked.connect(
-            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
-                                      sub_service_id=PUS_HK_Subtype_ID.HK_ONE_SHOT.value,
-                                      command_data=Command_data.HK_UC.value))
-        self.send_button_5.clicked.connect(
-            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
-                                      sub_service_id=PUS_HK_Subtype_ID.HK_ONE_SHOT.value,
-                                      command_data=Command_data.HK_FPGA.value))
-        self.send_button_6.clicked.connect(
-            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
-                                      sub_service_id=PUS_HK_Subtype_ID.HK_ONE_SHOT.value,
-                                      command_data=Command_data.HK_UC_FPGA.value))
-        self.send_button_7.clicked.connect(
-            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
-                                      sub_service_id=PUS_HK_Subtype_ID.HK_DIS_PERIODIC_REPORTS.value,
-                                      command_data=Command_data.HK_UC.value))
-        self.send_button_8.clicked.connect(
-            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
-                                      sub_service_id=PUS_HK_Subtype_ID.HK_DIS_PERIODIC_REPORTS.value,
-                                      command_data=Command_data.HK_FPGA.value))
-        self.send_button_9.clicked.connect(
-            lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
-                                      sub_service_id=PUS_HK_Subtype_ID.HK_DIS_PERIODIC_REPORTS.value,
-                                      command_data=Command_data.HK_UC_FPGA.value))
-        
-        self.send_button_10.clicked.connect(
+        # Connect main buttons to actions
+        self.test_button.clicked.connect(
             lambda: self.send_command(service_id=PUS_Service_ID.TEST_SERVICE_ID.value,
                                       sub_service_id=PUS_TEST_Subtype_ID.T_ARE_YOU_ALIVE_TEST_ID.value,
                                       command_data=Command_data.TS_EMPTY.value))
-
-        self.send_button_11.clicked.connect(
-            lambda: self.set_sweep_table()
-        )
-
-        self.send_button_12.clicked.connect(
-            lambda: self.get_sweep_table()
-        )
-
-        self.send_button_13.clicked.connect(
-            lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
-                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=Command_data.FM_SET_VOLTAGE_LEVEL_SWEEP_MODE_FPGA.value)
-        )
-
-        self.send_button_14.clicked.connect(
-            lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
-                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=Command_data.FM_GET_VOLTAGE_LEVEL_SWEEP_MODE_FRAM_FPGA.value)
-        )
-        
-        self.uC_SW_T_0.clicked.connect(
-            lambda: self.show_sw_table(0))
-        
-        self.uC_SW_T_1.clicked.connect(
-            lambda: self.show_sw_table(1))
-        
-        self.uC_SW_T_2.clicked.connect(
-            lambda: self.show_sw_table(2))
-        
-        self.uC_SW_T_3.clicked.connect(
-            lambda: self.show_sw_table(3))
-        
-        self.uC_SW_T_4.clicked.connect(
-            lambda: self.show_sw_table(4))
-        
-        self.uC_SW_T_5.clicked.connect(
-            lambda: self.show_sw_table(5))
-        
-        self.uC_SW_T_6.clicked.connect(
-            lambda: self.show_sw_table(6))
-        
-        self.uC_SW_T_7.clicked.connect(
-            lambda: self.show_sw_table(7))
-
-        
+        self.hk_button.clicked.connect(self.show_hk_commands)
+        self.sweep_tables_MCU.clicked.connect(self.show_sweep_tables)
+        self.fm_button.clicked.connect(self.show_FM_commands)
         self.clear_button.clicked.connect(lambda: self.clear_console())
 
-        grid_layout = QGridLayout()
-        main_layout.addWidget(self.send_button_1, 0, 0)
-        main_layout.addWidget(self.send_button_2, 0, 1)
-        main_layout.addWidget(self.send_button_3, 1, 0)
-        main_layout.addWidget(self.send_button_4, 1, 1)
-        main_layout.addWidget(self.send_button_5, 2, 0)
-        main_layout.addWidget(self.send_button_6, 2, 1)
-        main_layout.addWidget(self.send_button_7, 3, 0)
-        main_layout.addWidget(self.send_button_8, 3, 1)
-        main_layout.addWidget(self.send_button_9, 4, 0)
-        main_layout.addWidget(self.send_button_10, 4, 1)
-        main_layout.addWidget(self.send_button_11, 5, 0)
-        main_layout.addWidget(self.send_button_12, 5, 1)
+        main_layout.addWidget(self.test_button, 0, 0, 1, 1)
+        main_layout.addWidget(self.hk_button, 0, 1, 1, 1)
+        main_layout.addWidget(self.fm_button, 0, 2, 1, 1)
+        main_layout.addWidget(self.sweep_tables_MCU, 0, 3, 1, 1)
+        main_layout.addWidget(self.clear_button, 0, 4, 1, 1)
 
-        main_layout.addWidget(self.uC_SW_T_0, 0, 2, 2, 1)
-        main_layout.addWidget(self.uC_SW_T_1, 0, 3, 2, 1)
-        main_layout.addWidget(self.uC_SW_T_2, 1, 2, 2, 1)
-        main_layout.addWidget(self.uC_SW_T_3, 1, 3, 2, 1)
-        main_layout.addWidget(self.uC_SW_T_4, 2, 2, 2, 1)
-        main_layout.addWidget(self.uC_SW_T_5, 2, 3, 2, 1)
-        main_layout.addWidget(self.uC_SW_T_6, 3, 2, 2, 1)
-        main_layout.addWidget(self.uC_SW_T_7, 3, 3, 2, 1)
-
-        main_layout.addWidget(self.clear_button, 6, 0)
-        main_layout.addWidget(self.send_button_13, 6, 1)
-        main_layout.addWidget(self.send_button_14, 7, 0)
-        main_layout.addWidget(splitter1, 8, 0, 2, 4)
-
-        # Assemble layout
-        # main_layout.addWidget(splitter1)
-        # main_layout.addWidget(grid_layout)
+        main_layout.addWidget(splitter1, 1, 0, 1, 5)
 
         self.setLayout(main_layout)
         self.show()
+
+    def show_hk_commands(self):
+        callbacks = {
+            'act_per_HK_uC' : lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
+                                    sub_service_id=PUS_HK_Subtype_ID.HK_EN_PERIODIC_REPORTS.value,
+                                    command_data=Command_data.HK_UC.value),
+
+            'act_per_HK_FPGA' : lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
+                                    sub_service_id=PUS_HK_Subtype_ID.HK_EN_PERIODIC_REPORTS.value,
+                                    command_data=Command_data.HK_FPGA.value),
+
+            'act_per_HK_uC_FPGA' : lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
+                                    sub_service_id=PUS_HK_Subtype_ID.HK_EN_PERIODIC_REPORTS.value,
+                                    command_data=Command_data.HK_UC_FPGA.value),
+
+            'oneshot_HK_uC' : lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
+                                    sub_service_id=PUS_HK_Subtype_ID.HK_ONE_SHOT.value,
+                                    command_data=Command_data.HK_UC.value),
+
+            'oneshot_HK_FPGA' : lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
+                                    sub_service_id=PUS_HK_Subtype_ID.HK_ONE_SHOT.value,
+                                    command_data=Command_data.HK_FPGA.value),
+
+            'oneshot_HK_uC_FPGA' : lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
+                                    sub_service_id=PUS_HK_Subtype_ID.HK_ONE_SHOT.value,
+                                    command_data=Command_data.HK_UC_FPGA.value),
+
+            'deact_per_HK_uC' : lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
+                                    sub_service_id=PUS_HK_Subtype_ID.HK_DIS_PERIODIC_REPORTS.value,
+                                    command_data=Command_data.HK_UC.value),
+
+            'deact_per_HK_FPGA' : lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
+                                    sub_service_id=PUS_HK_Subtype_ID.HK_DIS_PERIODIC_REPORTS.value,
+                                    command_data=Command_data.HK_FPGA.value),
+
+            'deact_per_HK_uC_FPGA' : lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
+                                    sub_service_id=PUS_HK_Subtype_ID.HK_DIS_PERIODIC_REPORTS.value,
+                                    command_data=Command_data.HK_UC_FPGA.value),
+        }
+        self.hk_window = SubWindow("Housekeeping Commands", get_hk_buttons(callbacks))
+        self.hk_window.show()  # Use show() instead of exec_()
+
+    def show_sweep_tables(self):
+        callbacks = {
+            'uC_SW_T_1' : lambda: self.show_sw_table(0), 
+            'uC_SW_T_2' : lambda: self.show_sw_table(1),
+            'uC_SW_T_3' : lambda: self.show_sw_table(2),
+            'uC_SW_T_4' : lambda: self.show_sw_table(3),
+            'uC_SW_T_5' : lambda: self.show_sw_table(4),
+            'uC_SW_T_6' : lambda: self.show_sw_table(5),
+            'uC_SW_T_7' : lambda: self.show_sw_table(6),
+            'uC_SW_T_8' : lambda: self.show_sw_table(7),
+        }
+        self.swt_mcu_window = SubWindow("MCU Sweep Tables", get_sweep_table_MCU_buttons(callbacks))
+        self.swt_mcu_window.show()
+
+    def show_FM_commands(self):
+        callbacks = {
+            'set_swt_MCU' : lambda: self.set_sweep_table(),
+            'get_swt_FPGA' : lambda: self.get_sweep_table(),
+            'set_CB_voltage' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=Command_data.FM_SET_CONSTANT_BIAS_VOLTAGE.value),
+
+            'get_CB_voltage' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=Command_data.FM_GET_CURRENT_CONSTANT_BIAS_VALUE.value),
+
+            'set_swt_FPGA_v' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=Command_data.FM_SET_VOLTAGE_LEVEL_SWEEP_MODE_FPGA.value),
+
+            'get_swt_FPGA_v' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=Command_data.FM_GET_VOLTAGE_LEVEL_SWEEP_MODE_FRAM_FPGA.value)
+        }
+        self.fm_window = SubWindow("FM commands", get_fm_buttons(callbacks))
+        self.fm_window.show()
 
     def init_serial(self):
         self.ser = serial.Serial('COM4', baudrate=115200, timeout=1)
@@ -335,10 +292,17 @@ class SerialApp(QWidget):
 
             else:
                 details.append("\nPUS Header: Not available or decode failed")
+
         elif spp_header.sec_head_flag == 0:
-            if decoded[6] == 0xCC:
+            if decoded[6] == Function_ID.GET_CB_VOL_LVL_ID.value:
                 details.append("\nConstant Bias Info:")
-                details.append(f"  Voltage Level: {decoded[7]} {decoded[8]}")
+                details.append(f"  Probe ID: {decoded[7]}")
+                details.append(f"  Voltage Level: {decoded[8] << 8 | (decoded[9])}")
+            elif decoded[6] == Function_ID.GET_SWT_VOL_LVL_ID.value:
+                details.append("\nVoltage Level In Sweep Table:")
+                details.append(f"  Table ID: {decoded[7]}")
+                details.append(f"  Step ID: {decoded[8]}")
+                details.append(f"  Voltage Level: {decoded[9] << 8 | (decoded[10])}")
         
         self.details_edit.setText("\n".join(details))
 
@@ -369,7 +333,6 @@ class SerialApp(QWidget):
                             command_data=data)
             time.sleep(0.5)
             
-
     def get_sweep_table(self):
         table_index = 2
         for i in range(10):

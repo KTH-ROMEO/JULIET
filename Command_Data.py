@@ -60,7 +60,7 @@ class Command_data(Enum):
     FM_SET_CONSTANT_BIAS_VOLTAGE            = [Function_ID.SET_CB_VOL_LVL_ID.value,        
                                                 0x02,   
                                                 Argument_ID.PROBE_ID_ARG_ID.value,  0x00,  
-                                                Argument_ID.VOL_LVL_ARG_ID.value,   0x11, 0x11]
+                                                Argument_ID.VOL_LVL_ARG_ID.value,   0x00, 0x11]
 
     FM_GET_CURRENT_CONSTANT_BIAS_VALUE      = [Function_ID.GET_CB_VOL_LVL_ID.value,       
                                                 0x01,   
@@ -70,7 +70,7 @@ class Command_data(Enum):
                                                 0x04,   
                                                 Argument_ID.PROBE_ID_ARG_ID.value,     0x00,  
                                                 Argument_ID.STEP_ID_ARG_ID.value,      0x1A,   
-                                                Argument_ID.VOL_LVL_ARG_ID.value,      0xEC , 0x2A, 
+                                                Argument_ID.VOL_LVL_ARG_ID.value,      0xEC , 0x22, 
                                                 Argument_ID.GS_TARGET_ARG_ID.value,    0x00]
 
     FM_GET_VOLTAGE_LEVEL_SWEEP_MODE_FRAM_FPGA    = [Function_ID.GET_SWT_VOL_LVL_ID.value, 
