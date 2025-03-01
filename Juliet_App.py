@@ -113,14 +113,14 @@ class SerialApp(QWidget):
 
     def show_sweep_tables(self):
         callbacks = {
-            'uC_SW_T_1' : lambda: self.show_sw_table(0), 
-            'uC_SW_T_2' : lambda: self.show_sw_table(1),
-            'uC_SW_T_3' : lambda: self.show_sw_table(2),
-            'uC_SW_T_4' : lambda: self.show_sw_table(3),
-            'uC_SW_T_5' : lambda: self.show_sw_table(4),
-            'uC_SW_T_6' : lambda: self.show_sw_table(5),
-            'uC_SW_T_7' : lambda: self.show_sw_table(6),
-            'uC_SW_T_8' : lambda: self.show_sw_table(7),
+            'uC_SW_T_1' : lambda: self.show_sw_table(1), 
+            'uC_SW_T_2' : lambda: self.show_sw_table(2),
+            'uC_SW_T_3' : lambda: self.show_sw_table(3),
+            'uC_SW_T_4' : lambda: self.show_sw_table(4),
+            'uC_SW_T_5' : lambda: self.show_sw_table(5),
+            'uC_SW_T_6' : lambda: self.show_sw_table(6),
+            'uC_SW_T_7' : lambda: self.show_sw_table(7),
+            'uC_SW_T_8' : lambda: self.show_sw_table(8),
         }
         self.swt_mcu_window = SubWindow("MCU Sweep Tables", get_sweep_table_MCU_buttons(callbacks))
         self.swt_mcu_window.show()
@@ -128,7 +128,9 @@ class SerialApp(QWidget):
     def show_FM_commands(self):
         callbacks = {
             'set_swt_MCU' : lambda: self.set_sweep_table(),
-            'get_swt_FPGA' : lambda: self.get_sweep_table(),
+
+            'get_swt_MCU' : lambda: self.get_sweep_table(),
+
             'set_CB_voltage' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
                             command_data=Command_data.FM_SET_CONSTANT_BIAS_VOLTAGE.value),
@@ -143,7 +145,23 @@ class SerialApp(QWidget):
 
             'get_swt_FPGA_v' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=Command_data.FM_GET_VOLTAGE_LEVEL_SWEEP_MODE_FRAM_FPGA.value)
+                            command_data=Command_data.FM_GET_VOLTAGE_LEVEL_SWEEP_MODE_FRAM_FPGA.value),
+
+            'set_steps_SB_mode' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=Command_data.FM_SET_STEPS_SB_MODE.value),
+
+            'get_steps_SB_mode' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=Command_data.FM_GET_STEPS_SB_MODE.value),
+
+            'set_samples_per_step_SB_mode' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=Command_data.FM_SET_SAMPLES_PER_STEP_SB_MODE.value),
+
+            'get_samples_per_step_SB_mode' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=Command_data.FM_GET_SAMPLES_PER_STEP_SB_MODE.value)
         }
         self.fm_window = SubWindow("FM commands", get_fm_buttons(callbacks))
         self.fm_window.show()
@@ -303,6 +321,12 @@ class SerialApp(QWidget):
                 details.append(f"  Table ID: {decoded[7]}")
                 details.append(f"  Step ID: {decoded[8]}")
                 details.append(f"  Voltage Level: {decoded[9] << 8 | (decoded[10])}")
+            elif decoded[6] == Function_ID.GET_SWT_STEPS_ID.value:
+                details.append("\nSweep Bias Mode info:")
+                details.append(f"Nr of Steps: {decoded[7]}")
+            elif decoded[6] == Function_ID.GET_SWT_SAMPLES_PER_STEP_ID.value:
+                details.append("\nSweep Bias Mode info:")
+                details.append(f"Nr of Samples per Step: {decoded[7] << 8 | decoded[8]}")
         
         self.details_edit.setText("\n".join(details))
 

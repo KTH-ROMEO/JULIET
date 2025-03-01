@@ -78,3 +78,17 @@ class Command_data(Enum):
                                                 Argument_ID.PROBE_ID_ARG_ID.value,  0x00,  
                                                 Argument_ID.STEP_ID_ARG_ID.value,   0x1A, 
                                                 Argument_ID.GS_TARGET_ARG_ID.value, 0x00]
+
+    FM_SET_STEPS_SB_MODE                    = [Function_ID.SET_SWT_STEPS_ID.value, 
+                                                0x01,   
+                                                Argument_ID.N_STEPS_ARG_ID.value,   0x11]
+
+    FM_GET_STEPS_SB_MODE                    = [Function_ID.GET_SWT_STEPS_ID.value, 
+                                                0x00]
+
+    FM_SET_SAMPLES_PER_STEP_SB_MODE         = [Function_ID.SET_SWT_SAMPLES_PER_STEP_ID.value, 
+                                                0x01,   
+                                                Argument_ID.N_SAMPLES_PER_STEP_ARG_ID.value,  0x00, 0xA0]
+
+    FM_GET_SAMPLES_PER_STEP_SB_MODE         = [Function_ID.GET_SWT_SAMPLES_PER_STEP_ID.value, 
+                                                0x00]
