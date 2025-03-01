@@ -169,7 +169,15 @@ class SerialApp(QWidget):
 
             'get_skipped_samples' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=Command_data.FM_GET_SKIPPED_SAMPLES_SB_MODE.value)
+                            command_data=Command_data.FM_GET_SKIPPED_SAMPLES_SB_MODE.value),
+
+            'set_samples_per_point' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=Command_data.FM_SET_SAMPLES_PER_POINT.value),
+
+            'get_samples_per_point' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=Command_data.FM_GET_SAMPLES_PER_POINT.value)
         }
         self.fm_window = SubWindow("FM commands", get_fm_buttons(callbacks))
         self.fm_window.show()
@@ -338,7 +346,10 @@ class SerialApp(QWidget):
                 details.append(f"Nr of Samples per Step: {decoded[7] << 8 | decoded[8]}")
             elif decoded[6] == Function_ID.GET_SWT_SAMPLE_SKIP_ID.value:
                 details.append("\nSweep Bias Mode info:")
-                details.append(f"Nr of Samples per Step: {decoded[7] << 8 | decoded[8]}")
+                details.append(f"Nr of Skipped Samples: {decoded[7] << 8 | decoded[8]}")
+            elif decoded[6] == Function_ID.GET_SWT_SAMPLES_PER_POINT_ID.value:
+                details.append("\nSweep Bias Mode info:")
+                details.append(f"Nr of Samples per Point: {decoded[7] << 8 | decoded[8]}")
         
         self.details_edit.setText("\n".join(details))
 

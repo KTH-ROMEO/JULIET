@@ -99,3 +99,10 @@ class Command_data(Enum):
 
     FM_GET_SKIPPED_SAMPLES_SB_MODE         = [Function_ID.GET_SWT_SAMPLE_SKIP_ID.value, 
                                                 0x00]
+
+    FM_SET_SAMPLES_PER_POINT                = [Function_ID.SET_SWT_SAMPLES_PER_POINT_ID.value, 
+                                                0x01,   
+                                                Argument_ID.N_F_ARG_ID.value,  0x00, 0x09]
+
+    FM_GET_SAMPLES_PER_POINT                 = [Function_ID.GET_SWT_SAMPLES_PER_POINT_ID.value, 
+                                                0x00]

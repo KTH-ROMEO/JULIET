@@ -15,6 +15,8 @@ def get_fm_buttons(callbacks):
         QPushButton('Get Samples per Step of SB mode'),
         QPushButton('Set Nr of Skipped Samples'),
         QPushButton('Get Nr of Skipped Samples'),
+        QPushButton('Set Samples per point'),
+        QPushButton('Get Samples per point'),
     ]
 
     # Connect buttons to callbacks
@@ -30,5 +32,7 @@ def get_fm_buttons(callbacks):
     buttons[9].clicked.connect(lambda: callbacks['get_samples_per_step_SB_mode']())
     buttons[10].clicked.connect(lambda: callbacks['set_skipped_samples']())
     buttons[11].clicked.connect(lambda: callbacks['get_skipped_samples']())
+    buttons[12].clicked.connect(lambda: callbacks['set_samples_per_point']())
+    buttons[13].clicked.connect(lambda: callbacks['get_samples_per_point']())
 
     return buttons
