@@ -161,7 +161,15 @@ class SerialApp(QWidget):
 
             'get_samples_per_step_SB_mode' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=Command_data.FM_GET_SAMPLES_PER_STEP_SB_MODE.value)
+                            command_data=Command_data.FM_GET_SAMPLES_PER_STEP_SB_MODE.value),
+
+            'set_skipped_samples' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=Command_data.FM_SET_SKIPPED_SAMPLES_SB_MODE.value),
+
+            'get_skipped_samples' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=Command_data.FM_GET_SKIPPED_SAMPLES_SB_MODE.value)
         }
         self.fm_window = SubWindow("FM commands", get_fm_buttons(callbacks))
         self.fm_window.show()
@@ -312,6 +320,7 @@ class SerialApp(QWidget):
                 details.append("\nPUS Header: Not available or decode failed")
 
         elif spp_header.sec_head_flag == 0:
+
             if decoded[6] == Function_ID.GET_CB_VOL_LVL_ID.value:
                 details.append("\nConstant Bias Info:")
                 details.append(f"  Probe ID: {decoded[7]}")
@@ -325,6 +334,9 @@ class SerialApp(QWidget):
                 details.append("\nSweep Bias Mode info:")
                 details.append(f"Nr of Steps: {decoded[7]}")
             elif decoded[6] == Function_ID.GET_SWT_SAMPLES_PER_STEP_ID.value:
+                details.append("\nSweep Bias Mode info:")
+                details.append(f"Nr of Samples per Step: {decoded[7] << 8 | decoded[8]}")
+            elif decoded[6] == Function_ID.GET_SWT_SAMPLE_SKIP_ID.value:
                 details.append("\nSweep Bias Mode info:")
                 details.append(f"Nr of Samples per Step: {decoded[7] << 8 | decoded[8]}")
         
