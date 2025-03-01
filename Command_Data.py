@@ -1,5 +1,7 @@
 from enum import Enum
 
+import Global_Variables
+
 class Function_ID(Enum):
     EN_CB_MODE_ID                           = 0xCA
     DIS_CB_MODE_ID                          = 0xC0
@@ -60,7 +62,7 @@ class Command_data(Enum):
     FM_SET_CONSTANT_BIAS_VOLTAGE            = [Function_ID.SET_CB_VOL_LVL_ID.value,        
                                                 0x02,   
                                                 Argument_ID.PROBE_ID_ARG_ID.value,  0x00,  
-                                                Argument_ID.VOL_LVL_ARG_ID.value,   0x00, 0x11]
+                                                Argument_ID.VOL_LVL_ARG_ID.value,   (Global_Variables.CB_MODE_VOLTAGE >> 8) & 0xFF, Global_Variables.CB_MODE_VOLTAGE & 0xFF]
 
     FM_GET_CURRENT_CONSTANT_BIAS_VALUE      = [Function_ID.GET_CB_VOL_LVL_ID.value,       
                                                 0x01,   
@@ -106,3 +108,18 @@ class Command_data(Enum):
 
     FM_GET_SAMPLES_PER_POINT                 = [Function_ID.GET_SWT_SAMPLES_PER_POINT_ID.value, 
                                                 0x00]
+    
+    FM_SET_POINTS_PER_STEP                = [Function_ID.SET_SWT_NPOINTS_ID.value, 
+                                                0x01,   
+                                                Argument_ID.N_POINTS_ARG_ID.value,  0x00, 0x06]
+
+    FM_GET_POINTS_PER_STEP                 = [Function_ID.GET_SWT_NPOINTS_ID.value, 
+                                                0x00]
+    
+def get_FM_SET_CONSTANT_BIAS_VOLTAGE():
+    return [
+        Function_ID.SET_CB_VOL_LVL_ID.value,        
+        0x02,   
+        Argument_ID.PROBE_ID_ARG_ID.value,  0x00,  
+        Argument_ID.VOL_LVL_ARG_ID.value,   (Global_Variables.CB_MODE_VOLTAGE >> 8) & 0xFF, Global_Variables.CB_MODE_VOLTAGE & 0xFF
+        ]

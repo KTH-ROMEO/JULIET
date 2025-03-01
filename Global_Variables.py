@@ -1,0 +1,2 @@
+
+CB_MODE_VOLTAGE = 13

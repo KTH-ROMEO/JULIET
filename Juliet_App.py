@@ -108,7 +108,7 @@ class SerialApp(QWidget):
                                     sub_service_id=PUS_HK_Subtype_ID.HK_DIS_PERIODIC_REPORTS.value,
                                     command_data=Command_data.HK_UC_FPGA.value),
         }
-        self.hk_window = SubWindow("Housekeeping Commands", get_hk_buttons(callbacks))
+        self.hk_window = ButtonWindow("Housekeeping Commands", get_hk_buttons(callbacks))
         self.hk_window.show()  # Use show() instead of exec_()
 
     def show_sweep_tables(self):
@@ -122,7 +122,7 @@ class SerialApp(QWidget):
             'uC_SW_T_7' : lambda: self.show_sw_table(7),
             'uC_SW_T_8' : lambda: self.show_sw_table(8),
         }
-        self.swt_mcu_window = SubWindow("MCU Sweep Tables", get_sweep_table_MCU_buttons(callbacks))
+        self.swt_mcu_window = ButtonWindow("MCU Sweep Tables", get_sweep_table_MCU_buttons(callbacks))
         self.swt_mcu_window.show()
 
     def show_FM_commands(self):
@@ -133,7 +133,7 @@ class SerialApp(QWidget):
 
             'set_CB_voltage' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=Command_data.FM_SET_CONSTANT_BIAS_VOLTAGE.value),
+                            command_data=get_FM_SET_CONSTANT_BIAS_VOLTAGE()),
 
             'get_CB_voltage' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
@@ -177,9 +177,17 @@ class SerialApp(QWidget):
 
             'get_samples_per_point' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=Command_data.FM_GET_SAMPLES_PER_POINT.value)
+                            command_data=Command_data.FM_GET_SAMPLES_PER_POINT.value),
+
+            'set_points_per_step' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=Command_data.FM_SET_POINTS_PER_STEP.value),
+
+            'get_points_per_step' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=Command_data.FM_GET_POINTS_PER_STEP.value)
         }
-        self.fm_window = SubWindow("FM commands", get_fm_buttons(callbacks))
+        self.fm_window = ButtonWindow("FM commands", get_fm_buttons(callbacks))
         self.fm_window.show()
 
     def init_serial(self):
@@ -348,6 +356,9 @@ class SerialApp(QWidget):
                 details.append("\nSweep Bias Mode info:")
                 details.append(f"Nr of Skipped Samples: {decoded[7] << 8 | decoded[8]}")
             elif decoded[6] == Function_ID.GET_SWT_SAMPLES_PER_POINT_ID.value:
+                details.append("\nSweep Bias Mode info:")
+                details.append(f"Nr of Samples per Point: {decoded[7] << 8 | decoded[8]}")
+            elif decoded[6] == Function_ID.GET_SWT_NPOINTS_ID.value:
                 details.append("\nSweep Bias Mode info:")
                 details.append(f"Nr of Samples per Point: {decoded[7] << 8 | decoded[8]}")
         
