@@ -137,55 +137,55 @@ class SerialApp(QWidget):
 
             'get_CB_voltage' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=Command_data.FM_GET_CURRENT_CONSTANT_BIAS_VALUE.value),
+                            command_data=get_FM_GET_CURRENT_CONSTANT_BIAS_VALUE()),
 
             'set_swt_FPGA_v' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=Command_data.FM_SET_VOLTAGE_LEVEL_SWEEP_MODE_FPGA.value),
+                            command_data=get_FM_SET_VOLTAGE_LEVEL_SWEEP_MODE_FPGA()),
 
             'get_swt_FPGA_v' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=Command_data.FM_GET_VOLTAGE_LEVEL_SWEEP_MODE_FRAM_FPGA.value),
+                            command_data=get_FM_GET_VOLTAGE_LEVEL_SWEEP_MODE_FPGA()),
 
             'set_steps_SB_mode' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=Command_data.FM_SET_STEPS_SB_MODE.value),
+                            command_data=get_FM_SET_STEPS_SB_MODE()),
 
             'get_steps_SB_mode' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=Command_data.FM_GET_STEPS_SB_MODE.value),
+                            command_data=get_FM_GET_STEPS_SB_MODE()),
 
             'set_samples_per_step_SB_mode' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=Command_data.FM_SET_SAMPLES_PER_STEP_SB_MODE.value),
+                            command_data=get_FM_SET_SAMPLES_PER_STEP_SB_MODE()),
 
             'get_samples_per_step_SB_mode' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=Command_data.FM_GET_SAMPLES_PER_STEP_SB_MODE.value),
+                            command_data=get_FM_GET_SAMPLES_PER_STEP_SB_MODE()),
 
             'set_skipped_samples' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=Command_data.FM_SET_SKIPPED_SAMPLES_SB_MODE.value),
+                            command_data=get_FM_SET_SKIPPED_SAMPLES_SB_MODE()),
 
             'get_skipped_samples' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=Command_data.FM_GET_SKIPPED_SAMPLES_SB_MODE.value),
+                            command_data=get_FM_GET_SKIPPED_SAMPLES_SB_MODE()),
 
             'set_samples_per_point' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=Command_data.FM_SET_SAMPLES_PER_POINT.value),
+                            command_data=get_FM_SET_SAMPLES_PER_POINT()),
 
             'get_samples_per_point' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=Command_data.FM_GET_SAMPLES_PER_POINT.value),
+                            command_data=get_FM_GET_SAMPLES_PER_POINT()),
 
             'set_points_per_step' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=Command_data.FM_SET_POINTS_PER_STEP.value),
+                            command_data=get_FM_SET_POINTS_PER_STEP()),
 
             'get_points_per_step' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=Command_data.FM_GET_POINTS_PER_STEP.value)
+                            command_data=get_FM_GET_POINTS_PER_STEP())
         }
         self.fm_window = ButtonWindow("FM commands", get_fm_buttons(callbacks))
         self.fm_window.show()

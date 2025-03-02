@@ -44,12 +44,7 @@ class Command_data(Enum):
     HK_FPGA                                 = [0x01, 0x00, 0x55, 0x55] 
     HK_UC_FPGA                              = [0x02, 0x00, 0x55, 0x55, 0xAA, 0xAA] 
     TS_EMPTY                                = [0x00]
-    FM_SET_VOLTAGE_LEVEL_SWEEP_MODE         = [Function_ID.SET_SWT_VOL_LVL_ID.value, 
-                                                0x04,   
-                                                Argument_ID.PROBE_ID_ARG_ID.value,     0x00,  
-                                                Argument_ID.STEP_ID_ARG_ID.value,      0x1A,   
-                                                Argument_ID.VOL_LVL_ARG_ID.value,      0x22 , 0x2A, 
-                                                Argument_ID.GS_TARGET_ARG_ID.value,    0x01]
+    
 
     FM_GET_VOLTAGE_LEVEL_SWEEP_MODE_FRAM    = [Function_ID.GET_SWT_VOL_LVL_ID.value, 
                                                 0x03,   
@@ -58,68 +53,90 @@ class Command_data(Enum):
                                                 Argument_ID.GS_TARGET_ARG_ID.value, 0x01]
     
     FM_ENABLE_CB_MODE                       = [Function_ID.EN_CB_MODE_ID.value, 0x00]
-
-    FM_SET_CONSTANT_BIAS_VOLTAGE            = [Function_ID.SET_CB_VOL_LVL_ID.value,        
-                                                0x02,   
-                                                Argument_ID.PROBE_ID_ARG_ID.value,  0x00,  
-                                                Argument_ID.VOL_LVL_ARG_ID.value,   (Global_Variables.CB_MODE_VOLTAGE >> 8) & 0xFF, Global_Variables.CB_MODE_VOLTAGE & 0xFF]
-
-    FM_GET_CURRENT_CONSTANT_BIAS_VALUE      = [Function_ID.GET_CB_VOL_LVL_ID.value,       
-                                                0x01,   
-                                                Argument_ID.PROBE_ID_ARG_ID.value,  0x00]
-
-    FM_SET_VOLTAGE_LEVEL_SWEEP_MODE_FPGA    = [Function_ID.SET_SWT_VOL_LVL_ID.value, 
-                                                0x04,   
-                                                Argument_ID.PROBE_ID_ARG_ID.value,     0x00,  
-                                                Argument_ID.STEP_ID_ARG_ID.value,      0x1A,   
-                                                Argument_ID.VOL_LVL_ARG_ID.value,      0xEC , 0x22, 
-                                                Argument_ID.GS_TARGET_ARG_ID.value,    0x00]
-
-    FM_GET_VOLTAGE_LEVEL_SWEEP_MODE_FRAM_FPGA    = [Function_ID.GET_SWT_VOL_LVL_ID.value, 
-                                                0x03,   
-                                                Argument_ID.PROBE_ID_ARG_ID.value,  0x00,  
-                                                Argument_ID.STEP_ID_ARG_ID.value,   0x1A, 
-                                                Argument_ID.GS_TARGET_ARG_ID.value, 0x00]
-
-    FM_SET_STEPS_SB_MODE                    = [Function_ID.SET_SWT_STEPS_ID.value, 
-                                                0x01,   
-                                                Argument_ID.N_STEPS_ARG_ID.value,   0x11]
-
-    FM_GET_STEPS_SB_MODE                    = [Function_ID.GET_SWT_STEPS_ID.value, 
-                                                0x00]
-
-    FM_SET_SAMPLES_PER_STEP_SB_MODE         = [Function_ID.SET_SWT_SAMPLES_PER_STEP_ID.value, 
-                                                0x01,   
-                                                Argument_ID.N_SAMPLES_PER_STEP_ARG_ID.value,  0x00, 0xA0]
-
-    FM_GET_SAMPLES_PER_STEP_SB_MODE         = [Function_ID.GET_SWT_SAMPLES_PER_STEP_ID.value, 
-                                                0x00]
-
-    FM_SET_SKIPPED_SAMPLES_SB_MODE         = [Function_ID.SET_SWT_SAMPLE_SKIP_ID.value, 
-                                                0x01,   
-                                                Argument_ID.N_SKIP_ARG_ID.value,  0x00, 0xA1]
-
-    FM_GET_SKIPPED_SAMPLES_SB_MODE         = [Function_ID.GET_SWT_SAMPLE_SKIP_ID.value, 
-                                                0x00]
-
-    FM_SET_SAMPLES_PER_POINT                = [Function_ID.SET_SWT_SAMPLES_PER_POINT_ID.value, 
-                                                0x01,   
-                                                Argument_ID.N_F_ARG_ID.value,  0x00, 0x09]
-
-    FM_GET_SAMPLES_PER_POINT                 = [Function_ID.GET_SWT_SAMPLES_PER_POINT_ID.value, 
-                                                0x00]
     
-    FM_SET_POINTS_PER_STEP                = [Function_ID.SET_SWT_NPOINTS_ID.value, 
-                                                0x01,   
-                                                Argument_ID.N_POINTS_ARG_ID.value,  0x00, 0x06]
-
-    FM_GET_POINTS_PER_STEP                 = [Function_ID.GET_SWT_NPOINTS_ID.value, 
-                                                0x00]
     
 def get_FM_SET_CONSTANT_BIAS_VOLTAGE():
     return [
         Function_ID.SET_CB_VOL_LVL_ID.value,        
         0x02,   
-        Argument_ID.PROBE_ID_ARG_ID.value,  0x00,  
+        Argument_ID.PROBE_ID_ARG_ID.value,  Global_Variables.LANGMUIR_PROBE_ID & 0xFF,  
         Argument_ID.VOL_LVL_ARG_ID.value,   (Global_Variables.CB_MODE_VOLTAGE >> 8) & 0xFF, Global_Variables.CB_MODE_VOLTAGE & 0xFF
         ]
+
+def get_FM_GET_CURRENT_CONSTANT_BIAS_VALUE():
+    return [
+        Function_ID.GET_CB_VOL_LVL_ID.value,       
+        0x01,   
+        Argument_ID.PROBE_ID_ARG_ID.value,  Global_Variables.LANGMUIR_PROBE_ID & 0xFF]
+
+def get_FM_SET_VOLTAGE_LEVEL_SWEEP_MODE_FPGA():
+    return [
+        Function_ID.SET_SWT_VOL_LVL_ID.value, 
+        0x04,   
+        Argument_ID.PROBE_ID_ARG_ID.value,     Global_Variables.LANGMUIR_PROBE_ID & 0xFF,  
+        Argument_ID.STEP_ID_ARG_ID.value,      0x1A,   
+        Argument_ID.VOL_LVL_ARG_ID.value,      0xEC , 0x22, 
+        Argument_ID.GS_TARGET_ARG_ID.value,    0x00]
+
+def get_FM_GET_VOLTAGE_LEVEL_SWEEP_MODE_FPGA():
+    return [
+        Function_ID.GET_SWT_VOL_LVL_ID.value, 
+        0x03,   
+        Argument_ID.PROBE_ID_ARG_ID.value,  Global_Variables.LANGMUIR_PROBE_ID & 0xFF,  
+        Argument_ID.STEP_ID_ARG_ID.value,   0x1A, 
+        Argument_ID.GS_TARGET_ARG_ID.value, 0x00]
+
+def get_FM_SET_STEPS_SB_MODE():
+    return [
+        Function_ID.SET_SWT_STEPS_ID.value, 
+        0x01,   
+        Argument_ID.N_STEPS_ARG_ID.value,   Global_Variables.SB_MODE_NR_STEPS & 0xFF]
+
+def get_FM_GET_STEPS_SB_MODE():
+    return [
+        Function_ID.GET_SWT_STEPS_ID.value, 
+        0x00]
+
+def get_FM_SET_SAMPLES_PER_STEP_SB_MODE():
+    return [
+        Function_ID.SET_SWT_SAMPLES_PER_STEP_ID.value, 
+        0x01,   
+        Argument_ID.N_SAMPLES_PER_STEP_ARG_ID.value,  (Global_Variables.SB_MODE_NR_SAMPLES_PER_STEP >> 8) & 0xFF, Global_Variables.SB_MODE_NR_SAMPLES_PER_STEP & 0xFF]
+
+def get_FM_GET_SAMPLES_PER_STEP_SB_MODE():
+    return [
+        Function_ID.GET_SWT_SAMPLES_PER_STEP_ID.value, 
+        0x00]
+
+def get_FM_SET_SKIPPED_SAMPLES_SB_MODE():
+    return [
+        Function_ID.SET_SWT_SAMPLE_SKIP_ID.value, 
+        0x01,   
+        Argument_ID.N_SKIP_ARG_ID.value,  (Global_Variables.SB_MODE_NR_SKIPPED_SAMPLES >> 8) & 0xFF, Global_Variables.SB_MODE_NR_SKIPPED_SAMPLES & 0xFF]
+
+def get_FM_GET_SKIPPED_SAMPLES_SB_MODE():
+    return [
+        Function_ID.GET_SWT_SAMPLE_SKIP_ID.value, 
+        0x00]
+
+def get_FM_SET_SAMPLES_PER_POINT():
+    return [
+        Function_ID.SET_SWT_SAMPLES_PER_POINT_ID.value, 
+        0x01,   
+        Argument_ID.N_F_ARG_ID.value,  (Global_Variables.SB_MODE_NR_SAMPLES_PER_POINT >> 8) & 0xFF, Global_Variables.SB_MODE_NR_SAMPLES_PER_POINT & 0xFF]
+
+def get_FM_GET_SAMPLES_PER_POINT():
+    return [
+        Function_ID.GET_SWT_SAMPLES_PER_POINT_ID.value, 
+        0x00]
+
+def get_FM_SET_POINTS_PER_STEP():
+    return [
+        Function_ID.SET_SWT_NPOINTS_ID.value, 
+        0x01,   
+        Argument_ID.N_POINTS_ARG_ID.value,  (Global_Variables.SB_MODE_NR_POINTS_PER_STEP >> 8) & 0xFF, Global_Variables.SB_MODE_NR_POINTS_PER_STEP & 0xFF]
+
+def get_FM_GET_POINTS_PER_STEP():
+    return [
+        Function_ID.GET_SWT_NPOINTS_ID.value, 
+        0x00]
