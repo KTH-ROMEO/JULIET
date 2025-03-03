@@ -24,7 +24,8 @@ class SerialApp(QWidget):
         self.messages = []  # Stores tuples of (raw_bytes, spp_header, pus_header)
         self.init_ui()
         self.init_serial()
-        self.uC_Sweep_Tables = uC_Sweet_Tables()
+        self.uC_Sweep_Tables = uC_Sweep_Tables()
+        self.FPGA_Sweep_Tables = FPGA_Sweep_Tables()
 
     def init_ui(self):
         self.setWindowTitle("JULIET")
@@ -45,6 +46,7 @@ class SerialApp(QWidget):
 
         self.hk_button = QPushButton('Housekeeping Commands')
         self.sweep_tables_MCU = QPushButton('Sweep Tables MCU')
+        self.sweep_tables_FPGA = QPushButton('Sweep Tables FPGA')
         self.fm_button = QPushButton('FM Commands')
         self.clear_button = QPushButton('Clear Console')
         self.test_button = QPushButton('Test Command')
@@ -55,7 +57,8 @@ class SerialApp(QWidget):
                                       sub_service_id=PUS_TEST_Subtype_ID.T_ARE_YOU_ALIVE_TEST_ID.value,
                                       command_data=Command_data.TS_EMPTY.value))
         self.hk_button.clicked.connect(self.show_hk_commands)
-        self.sweep_tables_MCU.clicked.connect(self.show_sweep_tables)
+        self.sweep_tables_MCU.clicked.connect(self.show_sweep_tables_MCU)
+        self.sweep_tables_FPGA.clicked.connect(self.show_sweep_tables_FPGA)
         self.fm_button.clicked.connect(self.show_FM_commands)
         self.clear_button.clicked.connect(lambda: self.clear_console())
 
@@ -63,9 +66,10 @@ class SerialApp(QWidget):
         main_layout.addWidget(self.hk_button, 0, 1, 1, 1)
         main_layout.addWidget(self.fm_button, 0, 2, 1, 1)
         main_layout.addWidget(self.sweep_tables_MCU, 0, 3, 1, 1)
-        main_layout.addWidget(self.clear_button, 0, 4, 1, 1)
+        main_layout.addWidget(self.sweep_tables_FPGA, 0, 4, 1, 1)
+        main_layout.addWidget(self.clear_button, 0, 5, 1, 1)
 
-        main_layout.addWidget(splitter1, 1, 0, 1, 5)
+        main_layout.addWidget(splitter1, 1, 0, 1, 6)
 
         self.setLayout(main_layout)
         self.show()
@@ -111,25 +115,37 @@ class SerialApp(QWidget):
         self.hk_window = ButtonWindow("Housekeeping Commands", get_hk_buttons(callbacks))
         self.hk_window.show()  # Use show() instead of exec_()
 
-    def show_sweep_tables(self):
+    def show_sweep_tables_MCU(self):
         callbacks = {
-            'uC_SW_T_1' : lambda: self.show_sw_table(1), 
-            'uC_SW_T_2' : lambda: self.show_sw_table(2),
-            'uC_SW_T_3' : lambda: self.show_sw_table(3),
-            'uC_SW_T_4' : lambda: self.show_sw_table(4),
-            'uC_SW_T_5' : lambda: self.show_sw_table(5),
-            'uC_SW_T_6' : lambda: self.show_sw_table(6),
-            'uC_SW_T_7' : lambda: self.show_sw_table(7),
-            'uC_SW_T_8' : lambda: self.show_sw_table(8),
+            'uC_SW_T_1' : lambda: self.show_sw_table(0, "mcu"), 
+            'uC_SW_T_2' : lambda: self.show_sw_table(1, "mcu"),
+            'uC_SW_T_3' : lambda: self.show_sw_table(2, "mcu"),
+            'uC_SW_T_4' : lambda: self.show_sw_table(3, "mcu"),
+            'uC_SW_T_5' : lambda: self.show_sw_table(4, "mcu"),
+            'uC_SW_T_6' : lambda: self.show_sw_table(5, "mcu"),
+            'uC_SW_T_7' : lambda: self.show_sw_table(6, "mcu"),
+            'uC_SW_T_8' : lambda: self.show_sw_table(7, "mcu"),
         }
         self.swt_mcu_window = ButtonWindow("MCU Sweep Tables", get_sweep_table_MCU_buttons(callbacks))
         self.swt_mcu_window.show()
 
+    def show_sweep_tables_FPGA(self):
+        callbacks = {
+            'FPGA_SW_T_1' : lambda: self.show_sw_table(0, "fpga"), 
+            'FPGA_SW_T_2' : lambda: self.show_sw_table(1, "fpga"),
+        }
+        self.swt_mcu_window = ButtonWindow("FPGA Sweep Tables", get_sweep_table_FPGA_buttons(callbacks))
+        self.swt_mcu_window.show()
+
     def show_FM_commands(self):
         callbacks = {
-            'set_swt_MCU' : lambda: self.set_sweep_table(),
+            'set_swt_MCU_v' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=get_FM_SET_VOLTAGE_LEVEL_SWEEP_TABLE()),
 
-            'get_swt_MCU' : lambda: self.get_sweep_table(),
+            'get_swt_MCU_v' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=get_FM_GET_VOLTAGE_LEVEL_SWEEP_TABLE()),
 
             'set_CB_voltage' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
@@ -141,11 +157,11 @@ class SerialApp(QWidget):
 
             'set_swt_FPGA_v' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=get_FM_SET_VOLTAGE_LEVEL_SWEEP_MODE_FPGA()),
+                            command_data=get_FM_SET_VOLTAGE_LEVEL_SWEEP_TABLE()),
 
             'get_swt_FPGA_v' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=get_FM_GET_VOLTAGE_LEVEL_SWEEP_MODE_FPGA()),
+                            command_data=get_FM_GET_VOLTAGE_LEVEL_SWEEP_TABLE()),
 
             'set_steps_SB_mode' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
@@ -233,7 +249,7 @@ class SerialApp(QWidget):
                                 item.setForeground(QBrush(QColor("purple")))  # Set text color to blue
                             else:
                                 if spp_header.packet_type == 0 and pus_header.service_id == 8 and pus_header.subtype_id == 1:
-                                    self.uC_Sweep_Tables.Table[decoded[16]][decoded[17]] = decoded[18] | decoded[19] << 8
+                                    self.uC_Sweep_Tables.Table[decoded[16]][decoded[17]] = decoded[18]<<8 | decoded[19]
                                 item = QListWidgetItem(f"Received: {hex_str}")  # Create a list item
                                 item.setForeground(QBrush(QColor("blue")))  # Set text color to blue
                             self.msg_list.addItem(item)
@@ -324,7 +340,7 @@ class SerialApp(QWidget):
                     FM_SWT_report.target = decoded[15]
                     FM_SWT_report.sweep_table_id = decoded[16]
                     FM_SWT_report.step_id = decoded[17]
-                    FM_SWT_report.voltage_level = decoded[18] | decoded[19] << 8
+                    FM_SWT_report.voltage_level = decoded[18]<<8 | decoded[19] 
                     
                     details.append("\nSweep Table Info:")
                     details.append(f"  Target: {FM_SWT_report.target}")
@@ -368,9 +384,13 @@ class SerialApp(QWidget):
         self.msg_list.clear()
         self.messages.clear()  # Also clear stored messages if needed
 
-    def show_sw_table(self, index):
-        plot_window = PlotWindow(self.uC_Sweep_Tables.Table[index], self)
-        plot_window.exec_()
+    def show_sw_table(self, index, category):
+        if category == "mcu":
+            plot_window = PlotWindow(self.uC_Sweep_Tables.Table[index], self)
+            plot_window.exec_()
+        elif category == "fpga":
+            plot_window = PlotWindow(self.FPGA_Sweep_Tables.Table[index], self)
+            plot_window.exec_()
 
     def set_sweep_table(self):
         table_index = 2

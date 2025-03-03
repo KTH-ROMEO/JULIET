@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLineEdit, QLabel, QPushButton
 
 import Global_Variables
+import time
 
 class ButtonWindow(QWidget):
     def __init__(self, title, buttons):
@@ -22,6 +23,55 @@ class InputWindow(QWidget):
 
         layout = QVBoxLayout()
 
+        if description == "set_swt_MCU_v":
+            Global_Variables.APPLY_ON_ENTIRE_SWEEP_TABLE = 0
+             # Optional: add a label for clarity
+            self.input_1_label = QLabel("Sweep Table ID: ")
+            self.input_1_box = QLineEdit()
+
+            self.input_2_button = QPushButton("Set Entire Table")
+            self.input_2_button.setCheckable(True)  # Makes it toggleable
+
+            self.input_3_label = QLabel("Step ID: ")
+            self.input_3_box = QLineEdit()
+            self.input_4_label = QLabel("Voltage Level: ")
+            self.input_4_box = QLineEdit()
+            self.save_button = QPushButton("Send Command")
+
+            layout.addWidget(self.input_1_label)
+            layout.addWidget(self.input_1_box)
+            layout.addWidget(self.input_2_button)
+            layout.addWidget(self.input_3_label)
+            layout.addWidget(self.input_3_box)
+            layout.addWidget(self.input_4_label)
+            layout.addWidget(self.input_4_box)
+            layout.addWidget(self.save_button)
+
+            self.input_2_button.toggled.connect(self.toggle_inputs)
+            self.save_button.clicked.connect(lambda: self.save_input(description, callback))
+        
+        elif description == "get_swt_MCU_v":
+             # Optional: add a label for clarity
+            self.input_1_label = QLabel("Sweep Table ID: ")
+            self.input_1_box = QLineEdit()
+            self.input_3_label = QLabel("Step ID: ")
+            self.input_3_box = QLineEdit()
+            self.save_button = QPushButton("Send Command")
+
+            layout.addWidget(self.input_1_label)
+            layout.addWidget(self.input_1_box)
+
+            self.input_2_button = QPushButton("Get Entire Table")
+            self.input_2_button.setCheckable(True)  # Makes it toggleable
+
+            layout.addWidget(self.input_2_button)
+            layout.addWidget(self.input_3_label)
+            layout.addWidget(self.input_3_box)
+            layout.addWidget(self.save_button)
+
+            self.input_2_button.toggled.connect(self.toggle_inputs)
+            self.save_button.clicked.connect(lambda: self.save_input(description, callback))
+
         # Create the input box for variable input
         if description == "set_CB_voltage":
              # Optional: add a label for clarity
@@ -38,7 +88,7 @@ class InputWindow(QWidget):
             layout.addWidget(self.save_button)
 
             self.save_button.clicked.connect(lambda: self.save_input(description, callback))
-        
+
         elif description == "get_CB_voltage":
              # Optional: add a label for clarity
             self.input_1_label = QLabel("Langmuir Probe ID: ")
@@ -47,6 +97,42 @@ class InputWindow(QWidget):
 
             layout.addWidget(self.input_1_label)
             layout.addWidget(self.input_1_box)
+            layout.addWidget(self.save_button)
+
+            self.save_button.clicked.connect(lambda: self.save_input(description, callback))
+
+        elif description == "set_swt_FPGA_v":
+             # Optional: add a label for clarity
+            self.input_1_label = QLabel("Sweep Table ID: ")
+            self.input_1_box = QLineEdit()
+            self.input_2_label = QLabel("Step ID: ")
+            self.input_2_box = QLineEdit()
+            self.input_3_label = QLabel("Voltage Level: ")
+            self.input_3_box = QLineEdit()
+            self.save_button = QPushButton("Send Command")
+
+            layout.addWidget(self.input_1_label)
+            layout.addWidget(self.input_1_box)
+            layout.addWidget(self.input_2_label)
+            layout.addWidget(self.input_2_box)
+            layout.addWidget(self.input_3_label)
+            layout.addWidget(self.input_3_box)
+            layout.addWidget(self.save_button)
+
+            self.save_button.clicked.connect(lambda: self.save_input(description, callback))
+        
+        elif description == "get_swt_FPGA_v":
+             # Optional: add a label for clarity
+            self.input_1_label = QLabel("Sweep Table ID: ")
+            self.input_1_box = QLineEdit()
+            self.input_2_label = QLabel("Step ID: ")
+            self.input_2_box = QLineEdit()
+            self.save_button = QPushButton("Send Command")
+
+            layout.addWidget(self.input_1_label)
+            layout.addWidget(self.input_1_box)
+            layout.addWidget(self.input_2_label)
+            layout.addWidget(self.input_2_box)
             layout.addWidget(self.save_button)
 
             self.save_button.clicked.connect(lambda: self.save_input(description, callback))
@@ -113,6 +199,15 @@ class InputWindow(QWidget):
         
         self.setLayout(layout)
     
+    def toggle_inputs(self, checked):
+        """Enable/disable other input fields based on button state."""
+        self.input_3_box.setDisabled(checked)
+        # self.input_4_box.setDisabled(checked)
+        if Global_Variables.APPLY_ON_ENTIRE_SWEEP_TABLE == 0:
+            Global_Variables.APPLY_ON_ENTIRE_SWEEP_TABLE = 1
+        else:
+            Global_Variables.APPLY_ON_ENTIRE_SWEEP_TABLE = 0
+    
     def save_input(self, description, callback):
 
         try:
@@ -126,6 +221,59 @@ class InputWindow(QWidget):
             elif description == "get_CB_voltage":
                 probe_id = self.input_1_box.text()
                 Global_Variables.LANGMUIR_PROBE_ID = int(probe_id)
+                callback()
+
+            elif description == "set_swt_MCU_v":
+                probe_id = self.input_1_box.text()
+                step_id = self.input_3_box.text()
+                voltage_lvl = self.input_4_box.text()
+
+                Global_Variables.TARGET = 1
+                Global_Variables.LANGMUIR_PROBE_ID = int(probe_id)
+                Global_Variables.SWEEP_TABLE_VOLTAGE = int(voltage_lvl)
+
+                if Global_Variables.APPLY_ON_ENTIRE_SWEEP_TABLE == 1:
+                    Global_Variables.APPLY_ON_ENTIRE_SWEEP_TABLE = 0
+                    for i in range(0,256):
+                        Global_Variables.STEP_ID = i
+                        callback()
+                        time.sleep(0.2)
+                else:
+                    Global_Variables.STEP_ID = int(step_id)
+                    callback()
+
+            elif description == "get_swt_MCU_v":
+                probe_id = self.input_1_box.text()
+                step_id = self.input_3_box.text()
+                Global_Variables.TARGET = 1
+                Global_Variables.LANGMUIR_PROBE_ID = int(probe_id)
+
+                if Global_Variables.APPLY_ON_ENTIRE_SWEEP_TABLE == 1:
+                    Global_Variables.APPLY_ON_ENTIRE_SWEEP_TABLE = 0
+                    for i in range(0,256):
+                        Global_Variables.STEP_ID = i
+                        callback()
+                        time.sleep(0.2)
+                else:
+                    Global_Variables.STEP_ID = int(step_id)
+                    callback()
+
+            elif description == "set_swt_FPGA_v":
+                probe_id = self.input_1_box.text()
+                step_id = self.input_2_box.text()
+                voltage_lvl = self.input_3_box.text()
+                Global_Variables.TARGET = 0
+                Global_Variables.LANGMUIR_PROBE_ID = int(probe_id)
+                Global_Variables.STEP_ID = int(step_id)
+                Global_Variables.SWEEP_TABLE_VOLTAGE = int(voltage_lvl)
+                callback()
+
+            elif description == "get_swt_FPGA_v":
+                probe_id = self.input_1_box.text()
+                step_id = self.input_2_box.text()
+                Global_Variables.TARGET = 0
+                Global_Variables.LANGMUIR_PROBE_ID = int(probe_id)
+                Global_Variables.STEP_ID = int(step_id)
                 callback()
 
             elif description == "set_steps_SB_mode":

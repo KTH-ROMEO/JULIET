@@ -69,22 +69,22 @@ def get_FM_GET_CURRENT_CONSTANT_BIAS_VALUE():
         0x01,   
         Argument_ID.PROBE_ID_ARG_ID.value,  Global_Variables.LANGMUIR_PROBE_ID & 0xFF]
 
-def get_FM_SET_VOLTAGE_LEVEL_SWEEP_MODE_FPGA():
+def get_FM_SET_VOLTAGE_LEVEL_SWEEP_TABLE():
     return [
         Function_ID.SET_SWT_VOL_LVL_ID.value, 
         0x04,   
         Argument_ID.PROBE_ID_ARG_ID.value,     Global_Variables.LANGMUIR_PROBE_ID & 0xFF,  
-        Argument_ID.STEP_ID_ARG_ID.value,      0x1A,   
-        Argument_ID.VOL_LVL_ARG_ID.value,      0xEC , 0x22, 
-        Argument_ID.GS_TARGET_ARG_ID.value,    0x00]
+        Argument_ID.STEP_ID_ARG_ID.value,      Global_Variables.STEP_ID & 0xFF,   
+        Argument_ID.VOL_LVL_ARG_ID.value,      (Global_Variables.SWEEP_TABLE_VOLTAGE >> 8) & 0xFF, Global_Variables.SWEEP_TABLE_VOLTAGE & 0xFF, 
+        Argument_ID.GS_TARGET_ARG_ID.value,    Global_Variables.TARGET]
 
-def get_FM_GET_VOLTAGE_LEVEL_SWEEP_MODE_FPGA():
+def get_FM_GET_VOLTAGE_LEVEL_SWEEP_TABLE():
     return [
         Function_ID.GET_SWT_VOL_LVL_ID.value, 
         0x03,   
         Argument_ID.PROBE_ID_ARG_ID.value,  Global_Variables.LANGMUIR_PROBE_ID & 0xFF,  
-        Argument_ID.STEP_ID_ARG_ID.value,   0x1A, 
-        Argument_ID.GS_TARGET_ARG_ID.value, 0x00]
+        Argument_ID.STEP_ID_ARG_ID.value,   Global_Variables.STEP_ID & 0xFF, 
+        Argument_ID.GS_TARGET_ARG_ID.value, Global_Variables.TARGET]
 
 def get_FM_SET_STEPS_SB_MODE():
     return [

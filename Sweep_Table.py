@@ -5,9 +5,13 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import pandas as pd
 
-class uC_Sweet_Tables:
+class uC_Sweep_Tables:
     def __init__(self):
         self.Table = [[0] * 256 for _ in range(8)]
+
+class FPGA_Sweep_Tables:
+    def __init__(self):
+        self.Table = [[0] * 256 for _ in range(2)]
 
 class PlotWindow(QDialog):
     def __init__(self, y, parent=None):
