@@ -26,6 +26,8 @@ class Function_ID(Enum):
     GET_SWT_SAMPLES_PER_POINT_ID            = 0xA5
     GET_SWT_NPOINTS_ID                      = 0xA6
 
+    COPY_SWT_FRAM_TO_FPGA                   = 0xE0
+
 class Argument_ID(Enum):
 
     PROBE_ID_ARG_ID                         = 0x01
@@ -140,3 +142,11 @@ def get_FM_GET_POINTS_PER_STEP():
     return [
         Function_ID.GET_SWT_NPOINTS_ID.value, 
         0x00]
+
+def get_FM_GET_CPY_SWT_FRAM_TO_FPGA():
+    return [
+        Function_ID.COPY_SWT_FRAM_TO_FPGA.value, 
+        0x02,
+        Argument_ID.PROBE_ID_ARG_ID.value, Global_Variables.LANGMUIR_PROBE_ID & 0xFF,
+        Argument_ID.FRAM_TABLE_ID_ARG_ID.value, Global_Variables.FRAM_TABLE_ID & 0xFF
+        ]

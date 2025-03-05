@@ -197,6 +197,23 @@ class InputWindow(QWidget):
 
             self.save_button.clicked.connect(lambda: self.save_input(description, callback))
         
+        elif description == "cpy_FRAM_to_FPGA":
+             # Optional: add a label for clarity
+            self.input_1_label = QLabel("FRAM Sweep Table ID: ")
+            self.input_1_box = QLineEdit()
+            self.input_3_label = QLabel("FPGA Sweep Table ID: ")
+            self.input_3_box = QLineEdit()
+            self.save_button = QPushButton("Send Command")
+
+            layout.addWidget(self.input_1_label)
+            layout.addWidget(self.input_1_box)
+
+            layout.addWidget(self.input_3_label)
+            layout.addWidget(self.input_3_box)
+            layout.addWidget(self.save_button)
+
+            self.save_button.clicked.connect(lambda: self.save_input(description, callback))
+
         self.setLayout(layout)
     
     def toggle_inputs(self, checked):
@@ -299,6 +316,13 @@ class InputWindow(QWidget):
             elif description == "set_points_per_step":
                 points_per_step = self.input_1_box.text()
                 Global_Variables.SB_MODE_NR_POINTS_PER_STEP = int(points_per_step)
+                callback()
+
+            elif description == "cpy_FRAM_to_FPGA":
+                FRAM_swt_id = self.input_1_box.text()
+                FPGA_swt_id = self.input_3_box.text()
+                Global_Variables.FRAM_TABLE_ID = int(FRAM_swt_id)
+                Global_Variables.LANGMUIR_PROBE_ID = int(FPGA_swt_id)
                 callback()
 
         except ValueError:

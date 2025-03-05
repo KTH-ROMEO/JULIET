@@ -201,7 +201,10 @@ class SerialApp(QWidget):
 
             'get_points_per_step' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=get_FM_GET_POINTS_PER_STEP())
+                            command_data=get_FM_GET_POINTS_PER_STEP()),
+            'cpy_FRAM_to_FPGA' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=get_FM_GET_CPY_SWT_FRAM_TO_FPGA())
         }
         self.fm_window = ButtonWindow("FM commands", get_fm_buttons(callbacks))
         self.fm_window.show()

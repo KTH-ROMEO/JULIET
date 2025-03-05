@@ -20,6 +20,7 @@ def get_fm_buttons(callbacks):
         QPushButton('Get Samples per point'),
         QPushButton('Set Points per Step'),
         QPushButton('Get Points per Step'),
+        QPushButton('Copy SWT from FRAM to FPGA'),
     ]
 
     # Connect buttons to callbacks
@@ -39,6 +40,7 @@ def get_fm_buttons(callbacks):
     buttons[13].clicked.connect(lambda: callbacks['get_samples_per_point']())
     buttons[14].clicked.connect(lambda: get_input("set_points_per_step", callbacks['set_points_per_step']))
     buttons[15].clicked.connect(lambda: callbacks['get_points_per_step']())
+    buttons[16].clicked.connect(lambda: get_input("cpy_FRAM_to_FPGA", callbacks['cpy_FRAM_to_FPGA']))
 
     return buttons
 
