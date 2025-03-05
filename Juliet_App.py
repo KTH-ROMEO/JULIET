@@ -262,6 +262,10 @@ class SerialApp(QWidget):
                             item = QListWidgetItem(f"Received: {hex_str}")  # Create a list item
                             item.setForeground(QBrush(QColor("red")))  # Set text color to blue
                             self.msg_list.addItem(item)
+                            if decoded[6] == Function_ID.GET_SWT_VOL_LVL_ID.value:
+                                print("GOT HERE")
+                                self.FPGA_Sweep_Tables.Table[decoded[7]][decoded[8]] = decoded[9]<<8 | decoded[10]
+
 
                         buffer = bytearray()
                         started = False
