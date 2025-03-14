@@ -54,8 +54,6 @@ class Command_data(Enum):
                                                 Argument_ID.STEP_ID_ARG_ID.value,   0x1A, 
                                                 Argument_ID.GS_TARGET_ARG_ID.value, 0x01]
     
-    FM_ENABLE_CB_MODE                       = [Function_ID.EN_CB_MODE_ID.value, 0x00]
-    
     
 def get_FM_SET_CONSTANT_BIAS_VOLTAGE():
     return [
@@ -149,4 +147,16 @@ def get_FM_GET_CPY_SWT_FRAM_TO_FPGA():
         0x02,
         Argument_ID.PROBE_ID_ARG_ID.value, Global_Variables.LANGMUIR_PROBE_ID & 0xFF,
         Argument_ID.FRAM_TABLE_ID_ARG_ID.value, Global_Variables.FRAM_TABLE_ID & 0xFF
+        ]
+
+def get_FM_ENABLE_CB_MODE():
+    return [
+        Function_ID.EN_CB_MODE_ID.value, 
+        0x00
+        ]
+
+def get_FM_DISABLE_CB_MODE():
+    return [
+        Function_ID.DIS_CB_MODE_ID.value, 
+        0x00
         ]

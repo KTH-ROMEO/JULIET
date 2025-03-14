@@ -21,6 +21,8 @@ def get_fm_buttons(callbacks):
         QPushButton('Set Points per Step'),
         QPushButton('Get Points per Step'),
         QPushButton('Copy SWT from FRAM to FPGA'),
+        QPushButton('Enable CB Mode'),
+        QPushButton('Disable CB Mode'),
     ]
 
     # Connect buttons to callbacks
@@ -41,6 +43,8 @@ def get_fm_buttons(callbacks):
     buttons[14].clicked.connect(lambda: get_input("set_points_per_step", callbacks['set_points_per_step']))
     buttons[15].clicked.connect(lambda: callbacks['get_points_per_step']())
     buttons[16].clicked.connect(lambda: get_input("cpy_FRAM_to_FPGA", callbacks['cpy_FRAM_to_FPGA']))
+    buttons[17].clicked.connect(lambda: callbacks['en_CB']())
+    buttons[18].clicked.connect(lambda: callbacks['dis_CB']())
 
     return buttons
 
