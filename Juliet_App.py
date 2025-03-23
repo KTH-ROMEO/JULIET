@@ -213,7 +213,11 @@ class SerialApp(QWidget):
 
             'dis_CB' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=get_FM_DISABLE_CB_MODE())
+                            command_data=get_FM_DISABLE_CB_MODE()),
+
+            'gen_Sweep' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=get_FM_GEN_SWEEP())
         }
         self.fm_window = ButtonWindow("FM commands", get_fm_buttons(callbacks))
         self.fm_window.show()

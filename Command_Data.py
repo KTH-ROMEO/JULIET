@@ -160,3 +160,9 @@ def get_FM_DISABLE_CB_MODE():
         Function_ID.DIS_CB_MODE_ID.value, 
         0x00
         ]
+
+def get_FM_GEN_SWEEP():
+    return [
+        Function_ID.SWT_ACTIVATE_SWEEP_ID.value, 
+        0x00
+        ]

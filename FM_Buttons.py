@@ -23,6 +23,7 @@ def get_fm_buttons(callbacks):
         QPushButton('Copy SWT from FRAM to FPGA'),
         QPushButton('Enable CB Mode'),
         QPushButton('Disable CB Mode'),
+        QPushButton('Generate one Sweep'),
     ]
 
     # Connect buttons to callbacks
@@ -45,6 +46,7 @@ def get_fm_buttons(callbacks):
     buttons[16].clicked.connect(lambda: get_input("cpy_FRAM_to_FPGA", callbacks['cpy_FRAM_to_FPGA']))
     buttons[17].clicked.connect(lambda: callbacks['en_CB']())
     buttons[18].clicked.connect(lambda: callbacks['dis_CB']())
+    buttons[19].clicked.connect(lambda: callbacks['gen_Sweep']())
 
     return buttons
 
