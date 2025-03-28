@@ -45,7 +45,7 @@ class Command_data(Enum):
     HK_UC                                   = [0x01, 0x00, 0xAA, 0xAA]
     HK_FPGA                                 = [0x01, 0x00, 0x55, 0x55] 
     HK_UC_FPGA                              = [0x02, 0x00, 0x55, 0x55, 0xAA, 0xAA] 
-    TS_EMPTY                                = [0x00]
+    TS_EMPTY                                = []
     
 
     FM_GET_VOLTAGE_LEVEL_SWEEP_MODE_FRAM    = [Function_ID.GET_SWT_VOL_LVL_ID.value, 
