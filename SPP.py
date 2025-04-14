@@ -4,7 +4,7 @@ class SPP_header:
         self.packet_type = 0
         self.sec_head_flag = 0
         self.apid = 0
-        self.seq_flags = 0
+        self.seq_flags = 3
         self.sc = 0
         self.data_len = 0
     

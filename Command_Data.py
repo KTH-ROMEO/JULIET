@@ -28,6 +28,8 @@ class Function_ID(Enum):
 
     COPY_SWT_FRAM_TO_FPGA                   = 0xE0
 
+    REBOOT_DEVICE_ID                           = 0xF3
+
 class Argument_ID(Enum):
 
     PROBE_ID_ARG_ID                         = 0x01
@@ -164,5 +166,11 @@ def get_FM_DISABLE_CB_MODE():
 def get_FM_GEN_SWEEP():
     return [
         Function_ID.SWT_ACTIVATE_SWEEP_ID.value, 
+        0x00
+        ]
+
+def get_REBOOT_DEVICE():
+    return [
+        Function_ID.REBOOT_DEVICE_ID.value, 
         0x00
         ]

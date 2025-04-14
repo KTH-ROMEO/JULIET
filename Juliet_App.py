@@ -217,7 +217,11 @@ class SerialApp(QWidget):
 
             'gen_Sweep' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=get_FM_GEN_SWEEP())
+                            command_data=get_FM_GEN_SWEEP()),
+
+            'reboot_device' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=get_REBOOT_DEVICE())
         }
         self.fm_window = ButtonWindow("FM commands", get_fm_buttons(callbacks))
         self.fm_window.show()
@@ -250,18 +254,22 @@ class SerialApp(QWidget):
                             pus_header = PUS_TM_decode(decoded[6:15])
 
                         hex_decoded = " ".join(f"0x{b:02X}" for b in decoded)
-                        # print(hex_decoded)
+                        print(hex_decoded)
 
                         if spp_header.packet_type == 0 and spp_header.sec_head_flag == 1:
                             if pus_header.service_id == 1:
                                 if(pus_header.subtype_id == 1):
                                     item = QListWidgetItem(f"Received: ACK ACC OK {hex_str}")  # Create a list item
+                                elif(pus_header.subtype_id == 2):
+                                    item = QListWidgetItem(f"Received: ACK ACC FAIL {hex_str}")  # Create a list item
                                 elif(pus_header.subtype_id == 3):
                                     item = QListWidgetItem(f"Received: ACK START OK {hex_str}")  # Create a list item
                                 elif(pus_header.subtype_id == 5):
                                     item = QListWidgetItem(f"Received: ACK EXE OK {hex_str}")  # Create a list item
                                 elif(pus_header.subtype_id == 7):
                                     item = QListWidgetItem(f"Received: ACK FINISH OK {hex_str}")  # Create a list item
+                                elif(pus_header.subtype_id == 8):
+                                    item = QListWidgetItem(f"Received: ACK FINISH FAIL {hex_str}")  # Create a list item
                                 item.setForeground(QBrush(QColor("purple")))  # Set text color to blue
                             else:
                                 if spp_header.packet_type == 0 and pus_header.service_id == 8 and pus_header.subtype_id == 1:
@@ -411,39 +419,6 @@ class SerialApp(QWidget):
         elif category == "fpga":
             plot_window = PlotWindow(self.FPGA_Sweep_Tables.Table[index], self)
             plot_window.exec_()
-
-    def set_sweep_table(self):
-        table_index = 2
-        table = Excel_table()
-        for i in range(10):
-            voltage_level = table.data_list[i]
-            data = [Function_ID.SET_SWT_VOL_LVL_ID.value, 
-                    0x04,   
-                    Argument_ID.PROBE_ID_ARG_ID.value,     table_index,  
-                    Argument_ID.STEP_ID_ARG_ID.value,      i,   
-                    Argument_ID.VOL_LVL_ARG_ID.value,      voltage_level & 0xFF, (voltage_level >> 8) & 0xFF,
-                    Argument_ID.GS_TARGET_ARG_ID.value,    0x01]
-            
-            print(table.data_list[i])
-            print(voltage_level & 0xFF, (voltage_level >> 8) & 0xFF)
-            self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
-                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=data)
-            time.sleep(0.5)
-            
-    def get_sweep_table(self):
-        table_index = 2
-        for i in range(10):
-            data = [Function_ID.GET_SWT_VOL_LVL_ID.value, 
-                    0x03,   
-                    Argument_ID.PROBE_ID_ARG_ID.value,     table_index,  
-                    Argument_ID.STEP_ID_ARG_ID.value,      i,  
-                    Argument_ID.GS_TARGET_ARG_ID.value,    0x01]
-            
-            self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
-                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=data)
-            time.sleep(0.5)
 
     def send_command(self, service_id, sub_service_id, command_data):
         cobs_msg = build_msg_SPP_PUS_Data_CRC(service_id, sub_service_id, command_data)

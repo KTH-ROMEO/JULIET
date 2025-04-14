@@ -6,6 +6,7 @@ class PUS_Service_ID(Enum):
     HOUSEKEEPING_SERVICE_ID                 = 3
     FUNCTION_MANAGEMNET_ID                  = 8
     TEST_SERVICE_ID                         = 17
+    UNSUPPORTED_SERVICE_ID                  = 18
 
 class PUS_HK_Subtype_ID(Enum):
     HK_CREATE_HK_PAR_REPORT_STRUCT          = 1  
