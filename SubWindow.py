@@ -214,6 +214,17 @@ class InputWindow(QWidget):
 
             self.save_button.clicked.connect(lambda: self.save_input(description, callback))
 
+        elif description == "jump_to_image":
+            self.input_1_label = QLabel("Index of desired firmware image: ")
+            self.input_1_box = QLineEdit()
+            self.save_button = QPushButton("Send Command")
+
+            layout.addWidget(self.input_1_label)
+            layout.addWidget(self.input_1_box)
+
+            self.save_button.clicked.connect(lambda: self.save_input(description, callback))
+            layout.addWidget(self.save_button)
+
         self.setLayout(layout)
     
     def toggle_inputs(self, checked):
@@ -323,6 +334,11 @@ class InputWindow(QWidget):
                 FPGA_swt_id = self.input_3_box.text()
                 Global_Variables.FRAM_TABLE_ID = int(FRAM_swt_id)
                 Global_Variables.LANGMUIR_PROBE_ID = int(FPGA_swt_id)
+                callback()
+
+            elif description == "jump_to_image":
+                Image_index = self.input_1_box.text()
+                Global_Variables.IMAGE_INDEX = int(Image_index)
                 callback()
 
         except ValueError:

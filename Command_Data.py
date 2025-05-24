@@ -28,7 +28,10 @@ class Function_ID(Enum):
 
     COPY_SWT_FRAM_TO_FPGA                   = 0xE0
 
-    REBOOT_DEVICE_ID                           = 0xF3
+    REBOOT_DEVICE_ID                        = 0xF3
+    JUMP_TO_IMAGE                           = 0xF4
+    LOAD_TO_IMAGE                           = 0xF5 
+    GET_SENSOR_DATA                           = 0xF6 
 
 class Argument_ID(Enum):
 
@@ -42,6 +45,7 @@ class Argument_ID(Enum):
     GS_TARGET_ARG_ID                        = 0x08
     FRAM_TABLE_ID_ARG_ID                    = 0x09
     N_SAMPLES_PER_STEP_ARG_ID               = 0x0A
+    IMAGE_INDEX                             = 0x0B
 
 class Command_data(Enum):
     HK_UC                                   = [0x01, 0x00, 0xAA, 0xAA]
@@ -174,3 +178,22 @@ def get_REBOOT_DEVICE():
         Function_ID.REBOOT_DEVICE_ID.value, 
         0x00
         ]
+
+def get_JUMP_TO_IMAGE():
+    return [
+        Function_ID.JUMP_TO_IMAGE.value, 
+        0x01,
+        Argument_ID.IMAGE_INDEX.value, Global_Variables.IMAGE_INDEX & 0xFF,
+    ]
+
+def get_LOAD_NEW_IMAGE():
+    return [
+        Function_ID.LOAD_TO_IMAGE.value, 
+        0x00
+    ]
+
+def get_SENSOR_DATA():
+    return [
+        Function_ID.GET_SENSOR_DATA.value, 
+        0x00
+    ]

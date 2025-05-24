@@ -221,7 +221,19 @@ class SerialApp(QWidget):
 
             'reboot_device' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=get_REBOOT_DEVICE())
+                            command_data=get_REBOOT_DEVICE()),
+            
+            'jump_to_image' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=get_JUMP_TO_IMAGE()),
+            
+            'load_new_image' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=get_LOAD_NEW_IMAGE()),
+            
+            'get_sensor_data' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=get_SENSOR_DATA()),
         }
         self.fm_window = ButtonWindow("FM commands", get_fm_buttons(callbacks))
         self.fm_window.show()
@@ -246,47 +258,54 @@ class SerialApp(QWidget):
                         self.messages.append(buffer)
                         hex_str = " ".join(f"0x{b:02X}" for b in buffer)
 
-                        # print(hex_str)
-                        decoded = cobs.decode(buffer[:-1])
-                        spp_header = SPP_decode(decoded[:6])
+                        print(hex_str)
+                        
+                        try:
+                            decoded = cobs.decode(buffer[:-1])
 
-                        if(spp_header.sec_head_flag == 1):
-                            pus_header = PUS_TM_decode(decoded[6:15])
+                            spp_header = SPP_decode(decoded[:6])
 
-                        hex_decoded = " ".join(f"0x{b:02X}" for b in decoded)
-                        print(hex_decoded)
+                            if(spp_header.sec_head_flag == 1):
+                                pus_header = PUS_TM_decode(decoded[6:15])
 
-                        if spp_header.packet_type == 0 and spp_header.sec_head_flag == 1:
-                            if pus_header.service_id == 1:
-                                if(pus_header.subtype_id == 1):
-                                    item = QListWidgetItem(f"Received: ACK ACC OK {hex_str}")  # Create a list item
-                                elif(pus_header.subtype_id == 2):
-                                    item = QListWidgetItem(f"Received: ACK ACC FAIL {hex_str}")  # Create a list item
-                                elif(pus_header.subtype_id == 3):
-                                    item = QListWidgetItem(f"Received: ACK START OK {hex_str}")  # Create a list item
-                                elif(pus_header.subtype_id == 5):
-                                    item = QListWidgetItem(f"Received: ACK EXE OK {hex_str}")  # Create a list item
-                                elif(pus_header.subtype_id == 7):
-                                    item = QListWidgetItem(f"Received: ACK FINISH OK {hex_str}")  # Create a list item
-                                elif(pus_header.subtype_id == 8):
-                                    item = QListWidgetItem(f"Received: ACK FINISH FAIL {hex_str}")  # Create a list item
-                                item.setForeground(QBrush(QColor("purple")))  # Set text color to blue
-                            else:
-                                if spp_header.packet_type == 0 and pus_header.service_id == 8 and pus_header.subtype_id == 1:
-                                    self.uC_Sweep_Tables.Table[decoded[16]][decoded[17]] = decoded[18]<<8 | decoded[19]
+                            hex_decoded = " ".join(f"0x{b:02X}" for b in decoded)
+                            print("     COBS Decoded:  ", hex_decoded)
+                            print("")
+
+                            if spp_header.packet_type == 0 and spp_header.sec_head_flag == 1:
+                                if pus_header.service_id == 1:
+                                    if(pus_header.subtype_id == 1):
+                                        item = QListWidgetItem(f"Received: ACK ACC OK {hex_str}")  # Create a list item
+                                    elif(pus_header.subtype_id == 2):
+                                        item = QListWidgetItem(f"Received: ACK ACC FAIL {hex_str}")  # Create a list item
+                                    elif(pus_header.subtype_id == 3):
+                                        item = QListWidgetItem(f"Received: ACK START OK {hex_str}")  # Create a list item
+                                    elif(pus_header.subtype_id == 5):
+                                        item = QListWidgetItem(f"Received: ACK EXE OK {hex_str}")  # Create a list item
+                                    elif(pus_header.subtype_id == 7):
+                                        item = QListWidgetItem(f"Received: ACK FINISH OK {hex_str}")  # Create a list item
+                                    elif(pus_header.subtype_id == 8):
+                                        item = QListWidgetItem(f"Received: ACK FINISH FAIL {hex_str}")  # Create a list item
+                                    item.setForeground(QBrush(QColor("purple")))  # Set text color to blue
+                                else:
+                                    if spp_header.packet_type == 0 and pus_header.service_id == 8 and pus_header.subtype_id == 1:
+                                        self.uC_Sweep_Tables.Table[decoded[16]][decoded[17]] = decoded[18]<<8 | decoded[19]
+                                    item = QListWidgetItem(f"Received: {hex_str}")  # Create a list item
+                                    item.setForeground(QBrush(QColor("blue")))  # Set text color to blue
+                                self.msg_list.addItem(item)
+
+                            elif spp_header.packet_type == 0 and spp_header.sec_head_flag == 0:
+                                print(hex_decoded)
                                 item = QListWidgetItem(f"Received: {hex_str}")  # Create a list item
-                                item.setForeground(QBrush(QColor("blue")))  # Set text color to blue
-                            self.msg_list.addItem(item)
+                                item.setForeground(QBrush(QColor("red")))  # Set text color to blue
+                                self.msg_list.addItem(item)
+                                if decoded[6] == Function_ID.GET_SWT_VOL_LVL_ID.value:
+                                    print("GOT HERE")
+                                    self.FPGA_Sweep_Tables.Table[decoded[7]][decoded[8]] = decoded[9]<<8 | decoded[10]
 
-                        elif spp_header.packet_type == 0 and spp_header.sec_head_flag == 0:
-                            print(hex_decoded)
-                            item = QListWidgetItem(f"Received: {hex_str}")  # Create a list item
-                            item.setForeground(QBrush(QColor("red")))  # Set text color to blue
-                            self.msg_list.addItem(item)
-                            if decoded[6] == Function_ID.GET_SWT_VOL_LVL_ID.value:
-                                print("GOT HERE")
-                                self.FPGA_Sweep_Tables.Table[decoded[7]][decoded[8]] = decoded[9]<<8 | decoded[10]
-
+                        except Exception as e:
+                            print("Error occured: ", e)
+                            print()
 
                         buffer = bytearray()
                         started = False

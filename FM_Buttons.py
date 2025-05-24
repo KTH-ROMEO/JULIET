@@ -25,6 +25,9 @@ def get_fm_buttons(callbacks):
         QPushButton('Disable CB Mode'),
         QPushButton('Generate one Sweep'),
         QPushButton('Reboot Device'),
+        QPushButton('Jump to Another Image'),
+        QPushButton('Load New Image'),
+        QPushButton('Get Sensor data'),
     ]
 
     # Connect buttons to callbacks
@@ -49,6 +52,9 @@ def get_fm_buttons(callbacks):
     buttons[18].clicked.connect(lambda: callbacks['dis_CB']())
     buttons[19].clicked.connect(lambda: callbacks['gen_Sweep']())
     buttons[20].clicked.connect(lambda: callbacks['reboot_device']())
+    buttons[21].clicked.connect(lambda: get_input("jump_to_image", callbacks['jump_to_image']))
+    buttons[22].clicked.connect(lambda: callbacks['load_new_image']())
+    buttons[23].clicked.connect(lambda: callbacks['get_sensor_data']())
 
     return buttons
 
