@@ -239,7 +239,7 @@ class SerialApp(QWidget):
         self.fm_window.show()
 
     def init_serial(self):
-        self.ser = serial.Serial('COM4', baudrate=115200, timeout=1)
+        self.ser = serial.Serial('/dev/pts/7', baudrate=38400, timeout=1)
         self.read_thread = threading.Thread(target=self.read_serial_data, daemon=True)
         self.read_thread.start()
 
@@ -443,7 +443,14 @@ class SerialApp(QWidget):
         cobs_msg = build_msg_SPP_PUS_Data_CRC(service_id, sub_service_id, command_data)
         
         hex_str = " ".join(f"0x{b:02X}" for b in cobs_msg)
-        self.ser.write(cobs_msg)
+        
+        for byte in cobs_msg:
+            self.ser.write(bytes([byte]))  # Convert int to bytes
+            print(f"Sent byte: ", byte)  # Hex print for clarity
+            time.sleep(0.05)
+
+        # self.ser.write(b'\n')  # Optional: delimiter at the end
+        # self.ser.write(cobs_msg)
 
         self.messages.append(cobs_msg)
         item = QListWidgetItem(f"Sent: {hex_str}")  # Create a list item
