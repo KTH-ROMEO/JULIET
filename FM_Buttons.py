@@ -54,7 +54,7 @@ def get_fm_buttons(callbacks):
     buttons[20].clicked.connect(lambda: callbacks['reboot_device']())
     buttons[21].clicked.connect(lambda: get_input("jump_to_image", callbacks['jump_to_image']))
     buttons[22].clicked.connect(lambda: callbacks['load_new_image']())
-    buttons[23].clicked.connect(lambda: callbacks['get_sensor_data']())
+    buttons[23].clicked.connect(lambda: get_input("get_sensor_data", callbacks['get_sensor_data']))
 
     return buttons
 

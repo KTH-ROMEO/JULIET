@@ -224,8 +224,22 @@ class InputWindow(QWidget):
 
             self.save_button.clicked.connect(lambda: self.save_input(description, callback))
             layout.addWidget(self.save_button)
+        
+        elif description == "get_sensor_data":
+             # Optional: add a label for clarity
+            self.input_1_label = QLabel("HK ID: ")
+            self.input_1_box = QLineEdit()
+            self.save_button = QPushButton("Send Command")
+
+            layout.addWidget(self.input_1_label)
+            layout.addWidget(self.input_1_box)
+            layout.addWidget(self.save_button)
+
+            self.save_button.clicked.connect(lambda: self.save_input(description, callback))
+
 
         self.setLayout(layout)
+
     
     def toggle_inputs(self, checked):
         """Enable/disable other input fields based on button state."""
@@ -339,6 +353,11 @@ class InputWindow(QWidget):
             elif description == "jump_to_image":
                 Image_index = self.input_1_box.text()
                 Global_Variables.IMAGE_INDEX = int(Image_index)
+                callback()
+
+            if description == "get_sensor_data":
+                hk_id = self.input_1_box.text()
+                Global_Variables.HK_ID = int(hk_id)
                 callback()
 
         except ValueError:

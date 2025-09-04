@@ -3,35 +3,35 @@ from enum import Enum
 import Global_Variables
 
 class Function_ID(Enum):
-    EN_CB_MODE_ID                           = 0xCA
-    DIS_CB_MODE_ID                          = 0xC0
+    EN_CB_MODE_ID                           = 0x08
+    DIS_CB_MODE_ID                          = 0x10
 
-    SET_CB_VOL_LVL_ID                       = 0xCB
-    GET_CB_VOL_LVL_ID                       = 0xCC
+    SET_CB_VOL_LVL_ID                       = 0x1B
+    GET_CB_VOL_LVL_ID                       = 0x21
 
-    SWT_ACTIVATE_SWEEP_ID                   = 0xAA
+    SWT_ACTIVATE_SWEEP_ID                   = 0x50
 
-    SET_SWT_VOL_LVL_ID                      = 0xAB
-    SET_SWT_STEPS_ID                        = 0xAC
-    SET_SWT_SAMPLES_PER_STEP_ID             = 0xAD
-    SET_SWT_SAMPLE_SKIP_ID                  = 0xAE
-    SET_SWT_SAMPLES_PER_POINT_ID            = 0xAF
-    SET_SWT_NPOINTS_ID                      = 0xB0
+    SET_SWT_VOL_LVL_ID                      = 0xB4
+    SET_SWT_STEPS_ID                        = 0x61
+    SET_SWT_SAMPLES_PER_STEP_ID             = 0x72
+    SET_SWT_SAMPLE_SKIP_ID                  = 0x82
+    SET_SWT_SAMPLES_PER_POINT_ID            = 0x92
+    SET_SWT_NPOINTS_ID                      = 0xA2
 
-    GET_SWT_SWEEP_CNT_ID                    = 0xA0
-    GET_SWT_VOL_LVL_ID                      = 0xA1
-    GET_SWT_STEPS_ID                        = 0xA2
-    GET_SWT_SAMPLES_PER_STEP_ID             = 0xA3
-    GET_SWT_SAMPLE_SKIP_ID                  = 0xA4
-    GET_SWT_SAMPLES_PER_POINT_ID            = 0xA5
-    GET_SWT_NPOINTS_ID                      = 0xA6
+    GET_SWT_SWEEP_CNT_ID                    = 0x58
+    GET_SWT_VOL_LVL_ID                      = 0xBA
+    GET_SWT_STEPS_ID                        = 0x68
+    GET_SWT_SAMPLES_PER_STEP_ID             = 0x78
+    GET_SWT_SAMPLE_SKIP_ID                  = 0x88
+    GET_SWT_SAMPLES_PER_POINT_ID            = 0x98
+    GET_SWT_NPOINTS_ID                      = 0xA8
 
     COPY_SWT_FRAM_TO_FPGA                   = 0xE0
 
     REBOOT_DEVICE_ID                        = 0xF3
     JUMP_TO_IMAGE                           = 0xF4
     LOAD_TO_IMAGE                           = 0xF5 
-    GET_SENSOR_DATA                           = 0xF6 
+    GET_SENSOR_DATA                           = 0xF9 
 
 class Argument_ID(Enum):
 
@@ -46,6 +46,7 @@ class Argument_ID(Enum):
     FRAM_TABLE_ID_ARG_ID                    = 0x09
     N_SAMPLES_PER_STEP_ARG_ID               = 0x0A
     IMAGE_INDEX                             = 0x0B
+    HK_ARG_ID                                   = 0x0C
 
 class Command_data(Enum):
     HK_UC                                   = [0x01, 0x00, 0xAA, 0xAA]
@@ -193,7 +194,8 @@ def get_LOAD_NEW_IMAGE():
     ]
 
 def get_SENSOR_DATA():
+
     return [
-        Function_ID.GET_SENSOR_DATA.value, 
-        0x00
-    ]
+    Function_ID.GET_SENSOR_DATA.value,       
+    0x01,   
+    Argument_ID.HK_ARG_ID.value,  Global_Variables.HK_ID & 0xFF]

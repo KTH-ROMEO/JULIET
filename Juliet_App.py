@@ -239,7 +239,7 @@ class SerialApp(QWidget):
         self.fm_window.show()
 
     def init_serial(self):
-        self.ser = serial.Serial('COM4', baudrate=115200, timeout=1)
+        self.ser = serial.Serial('COM3', baudrate=115200, timeout=1)
         self.read_thread = threading.Thread(target=self.read_serial_data, daemon=True)
         self.read_thread.start()
 
