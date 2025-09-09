@@ -1,6 +1,7 @@
 import sys
 import serial
 import threading
+import pandas as pd
 from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
                              QTextEdit, QPushButton, QListWidget, QLabel, QSplitter, QListWidgetItem, QGridLayout)
 
@@ -234,9 +235,30 @@ class SerialApp(QWidget):
             'get_sensor_data' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
                             command_data=get_SENSOR_DATA()),
+            'get_whole_swt_FPGA' : lambda: self.GetSweepLoop(),
+            'set_whole_swt_FPGA' : lambda: self.SetSweepLoop(),
         }
         self.fm_window = ButtonWindow("FM commands", get_fm_buttons(callbacks))
         self.fm_window.show()
+
+    def GetSweepLoop(self):
+        i=0
+        while i<256:
+            self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=get_FM_GET_WHOLE_SWT(int(i)))
+            i=i+1
+            time.sleep(0.05)
+    def SetSweepLoop(self):
+        i=0
+        table= pd.read_excel("Sweep_Table_Input.xlsx", engine='openpyxl')["Value"].tolist()
+
+        while i<256:
+            self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=get_FM_SET_WHOLE_SWT(int(i),int(table[i])))
+            i=i+1
+            time.sleep(0.05)
 
     def init_serial(self):
         self.ser = serial.Serial('COM3', baudrate=115200, timeout=1)

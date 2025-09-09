@@ -199,3 +199,20 @@ def get_SENSOR_DATA():
     Function_ID.GET_SENSOR_DATA.value,       
     0x01,   
     Argument_ID.HK_ARG_ID.value,  Global_Variables.HK_ID & 0xFF]
+
+def get_FM_GET_WHOLE_SWT(i):
+    return [
+        Function_ID.GET_SWT_VOL_LVL_ID.value, 
+        0x03,   
+        Argument_ID.PROBE_ID_ARG_ID.value,  Global_Variables.LANGMUIR_PROBE_ID & 0xFF,  
+        Argument_ID.STEP_ID_ARG_ID.value,   i & 0xFF, 
+        Argument_ID.GS_TARGET_ARG_ID.value, Global_Variables.TARGET]
+
+def get_FM_SET_WHOLE_SWT(i,value):
+    return [
+        Function_ID.SET_SWT_VOL_LVL_ID.value, 
+        0x04,   
+        Argument_ID.PROBE_ID_ARG_ID.value,     Global_Variables.LANGMUIR_PROBE_ID & 0xFF,  
+        Argument_ID.STEP_ID_ARG_ID.value,      i & 0xFF,   
+        Argument_ID.VOL_LVL_ARG_ID.value,      (value >> 8) & 0xFF, value & 0xFF, 
+        Argument_ID.GS_TARGET_ARG_ID.value,    Global_Variables.TARGET]
