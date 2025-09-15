@@ -262,6 +262,21 @@ class InputWindow(QWidget):
 
             self.save_button.clicked.connect(lambda: self.save_input(description, callback))
 
+        elif description == "set_period_HK":
+
+            self.input_1_label = QLabel("HK ID: ")
+            self.input_1_box = QLineEdit()
+            self.input_2_label = QLabel("Period code: ")
+            self.input_2_box = QLineEdit()
+            self.save_button = QPushButton("Send Command")
+
+            layout.addWidget(self.input_1_label)
+            layout.addWidget(self.input_1_box)
+            layout.addWidget(self.input_2_label)
+            layout.addWidget(self.input_2_box)
+            layout.addWidget(self.save_button)
+
+            self.save_button.clicked.connect(lambda: self.save_input(description, callback))
 
         self.setLayout(layout)
 
@@ -392,10 +407,18 @@ class InputWindow(QWidget):
                 Global_Variables.IMAGE_INDEX = int(Image_index)
                 callback()
 
-            if description == "get_sensor_data":
+            elif description == "get_sensor_data":
                 hk_id = self.input_1_box.text()
                 Global_Variables.HK_ID = int(hk_id)
                 callback()
+
+            elif description == "set_period_HK":
+                hk_periodic_id = self.input_1_box.text()
+                hk_period = self.input_2_box.text()
+                Global_Variables.HK_PERIODIC_ID = int(hk_periodic_id)
+                Global_Variables.HK_PERIOD = int(hk_period)
+                callback()
+
 
         except ValueError:
             print("Invalid input. Please enter a valid number")

@@ -31,7 +31,8 @@ class Function_ID(Enum):
     REBOOT_DEVICE_ID                        = 0xF3
     JUMP_TO_IMAGE                           = 0xF4
     LOAD_TO_IMAGE                           = 0xF5 
-    GET_SENSOR_DATA                           = 0xF9 
+    SET_PERIOD_HK                           = 0xF2
+    GET_SENSOR_DATA                         = 0xF9 
 
 class Argument_ID(Enum):
 
@@ -46,7 +47,9 @@ class Argument_ID(Enum):
     FRAM_TABLE_ID_ARG_ID                    = 0x09
     N_SAMPLES_PER_STEP_ARG_ID               = 0x0A
     IMAGE_INDEX                             = 0x0B
-    HK_ARG_ID                                   = 0x0C
+    HK_ARG_ID                               = 0x0C
+    HK_PERIODIC_ARG_ID                      = 0x0D
+    HK_PERIOD_ARG_ID                        = 0x0E
 
 class Command_data(Enum):
     HK_UC                                   = [0x01, 0x00, 0xAA, 0xAA]
@@ -199,6 +202,15 @@ def get_SENSOR_DATA():
     Function_ID.GET_SENSOR_DATA.value,       
     0x01,   
     Argument_ID.HK_ARG_ID.value,  Global_Variables.HK_ID & 0xFF]
+
+def set_PERIOD_HK():
+    
+    return [
+        Function_ID.SET_PERIOD_HK.value, 
+        0x02,   
+        Argument_ID.HK_PERIODIC_ARG_ID.value,  Global_Variables.HK_PERIODIC_ID & 0xFF,
+        Argument_ID.HK_PERIOD_ARG_ID.value,  Global_Variables.HK_PERIOD & 0xFF]
+
 
 def get_FM_GET_WHOLE_SWT(i):
     return [

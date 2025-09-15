@@ -237,6 +237,9 @@ class SerialApp(QWidget):
                             command_data=get_SENSOR_DATA()),
             'get_whole_swt_FPGA' : lambda: self.GetSweepLoop(),
             'set_whole_swt_FPGA' : lambda: self.SetSweepLoop(),
+            'set_period_HK' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=set_PERIOD_HK()),
         }
         self.fm_window = ButtonWindow("FM commands", get_fm_buttons(callbacks))
         self.fm_window.show()
