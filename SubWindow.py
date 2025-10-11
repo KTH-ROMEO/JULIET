@@ -250,8 +250,8 @@ class InputWindow(QWidget):
             self.save_button.clicked.connect(lambda: self.save_input(description, callback))
             layout.addWidget(self.save_button)
         
-        elif description == "get_sensor_data":
-             # Optional: add a label for clarity
+
+        elif description == "oneshot_HK":
             self.input_1_label = QLabel("HK ID: ")
             self.input_1_box = QLineEdit()
             self.save_button = QPushButton("Send Command")
@@ -407,15 +407,17 @@ class InputWindow(QWidget):
                 Global_Variables.IMAGE_INDEX = int(Image_index)
                 callback()
 
-            elif description == "get_sensor_data":
+
+            elif description == "oneshot_HK":
                 hk_id = self.input_1_box.text()
                 Global_Variables.HK_ID = int(hk_id)
                 callback()
 
+
             elif description == "set_period_HK":
-                hk_periodic_id = self.input_1_box.text()
+                hk_id = self.input_1_box.text()
                 hk_period = self.input_2_box.text()
-                Global_Variables.HK_PERIODIC_ID = int(hk_periodic_id)
+                Global_Variables.HK_ID = int(hk_id)
                 Global_Variables.HK_PERIOD = int(hk_period)
                 callback()
 

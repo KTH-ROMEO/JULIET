@@ -27,8 +27,6 @@ def get_fm_buttons(callbacks):
         QPushButton('Reboot Device'),
         QPushButton('Jump to Another Image'),
         QPushButton('Load New Image'),
-        QPushButton('Get Sensor data'),
-        QPushButton('Set HK Period'),
 
         QPushButton('Get Whole Sweep Table FPGA'),
         QPushButton('Set Whole Sweep Table FPGA'),
@@ -58,10 +56,8 @@ def get_fm_buttons(callbacks):
     buttons[20].clicked.connect(lambda: callbacks['reboot_device']())
     buttons[21].clicked.connect(lambda: get_input("jump_to_image", callbacks['jump_to_image']))
     buttons[22].clicked.connect(lambda: callbacks['load_new_image']())
-    buttons[23].clicked.connect(lambda: get_input("get_sensor_data", callbacks['get_sensor_data']))
-    buttons[24].clicked.connect(lambda: get_input("set_period_HK", callbacks['set_period_HK']))
-    buttons[25].clicked.connect(lambda: get_input("get_whole_swt_FPGA", callbacks['get_whole_swt_FPGA']))
-    buttons[26].clicked.connect(lambda: get_input("set_whole_swt_FPGA", callbacks['set_whole_swt_FPGA']))
+    buttons[23].clicked.connect(lambda: get_input("get_whole_swt_FPGA", callbacks['get_whole_swt_FPGA']))
+    buttons[24].clicked.connect(lambda: get_input("set_whole_swt_FPGA", callbacks['set_whole_swt_FPGA']))
 
     return buttons
 

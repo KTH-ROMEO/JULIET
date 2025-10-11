@@ -47,16 +47,11 @@ class Argument_ID(Enum):
     FRAM_TABLE_ID_ARG_ID                    = 0x09
     N_SAMPLES_PER_STEP_ARG_ID               = 0x0A
     IMAGE_INDEX                             = 0x0B
-    HK_ARG_ID                               = 0x0C
-    HK_PERIODIC_ARG_ID                      = 0x0D
-    HK_PERIOD_ARG_ID                        = 0x0E
+
 
 class Command_data(Enum):
-    HK_UC                                   = [0x01, 0x00, 0xAA, 0xAA]
-    HK_FPGA                                 = [0x01, 0x00, 0x55, 0x55] 
-    HK_UC_FPGA                              = [0x02, 0x00, 0x55, 0x55, 0xAA, 0xAA] 
-    TS_EMPTY                                = []
     
+    TS_EMPTY  = []
 
     FM_GET_VOLTAGE_LEVEL_SWEEP_MODE_FRAM    = [Function_ID.GET_SWT_VOL_LVL_ID.value, 
                                                 0x03,   
@@ -196,20 +191,21 @@ def get_LOAD_NEW_IMAGE():
         0x00
     ]
 
-def get_SENSOR_DATA():
+
+
+def oneshot_HK():
 
     return [
-    Function_ID.GET_SENSOR_DATA.value,       
-    0x01,   
-    Argument_ID.HK_ARG_ID.value,  Global_Variables.HK_ID & 0xFF]
+    0x01,
+    Global_Variables.HK_ID & 0xFF]
 
-def set_PERIOD_HK():
-    
+def set_period_HK():
+
     return [
-        Function_ID.SET_PERIOD_HK.value, 
-        0x02,   
-        Argument_ID.HK_PERIODIC_ARG_ID.value,  Global_Variables.HK_PERIODIC_ID & 0xFF,
-        Argument_ID.HK_PERIOD_ARG_ID.value,  Global_Variables.HK_PERIOD & 0xFF]
+    0x01, 
+    Global_Variables.HK_ID & 0xFF,
+    Global_Variables.HK_PERIOD & 0xFF]
+
 
 
 def get_FM_GET_WHOLE_SWT(i):

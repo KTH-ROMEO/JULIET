@@ -77,41 +77,16 @@ class SerialApp(QWidget):
 
     def show_hk_commands(self):
         callbacks = {
-            'act_per_HK_uC' : lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
-                                    sub_service_id=PUS_HK_Subtype_ID.HK_EN_PERIODIC_REPORTS.value,
-                                    command_data=Command_data.HK_UC.value),
 
-            'act_per_HK_FPGA' : lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
-                                    sub_service_id=PUS_HK_Subtype_ID.HK_EN_PERIODIC_REPORTS.value,
-                                    command_data=Command_data.HK_FPGA.value),
-
-            'act_per_HK_uC_FPGA' : lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
-                                    sub_service_id=PUS_HK_Subtype_ID.HK_EN_PERIODIC_REPORTS.value,
-                                    command_data=Command_data.HK_UC_FPGA.value),
-
-            'oneshot_HK_uC' : lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
+            'oneshot_HK' : lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
                                     sub_service_id=PUS_HK_Subtype_ID.HK_ONE_SHOT.value,
-                                    command_data=Command_data.HK_UC.value),
+                                    command_data=oneshot_HK()),
 
-            'oneshot_HK_FPGA' : lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
-                                    sub_service_id=PUS_HK_Subtype_ID.HK_ONE_SHOT.value,
-                                    command_data=Command_data.HK_FPGA.value),
+            'set_period_HK' : lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
+                                    sub_service_id=PUS_HK_Subtype_ID.HK_SET_PERIOD.value,
+                                    command_data=set_period_HK()),
 
-            'oneshot_HK_uC_FPGA' : lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
-                                    sub_service_id=PUS_HK_Subtype_ID.HK_ONE_SHOT.value,
-                                    command_data=Command_data.HK_UC_FPGA.value),
 
-            'deact_per_HK_uC' : lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
-                                    sub_service_id=PUS_HK_Subtype_ID.HK_DIS_PERIODIC_REPORTS.value,
-                                    command_data=Command_data.HK_UC.value),
-
-            'deact_per_HK_FPGA' : lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
-                                    sub_service_id=PUS_HK_Subtype_ID.HK_DIS_PERIODIC_REPORTS.value,
-                                    command_data=Command_data.HK_FPGA.value),
-
-            'deact_per_HK_uC_FPGA' : lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
-                                    sub_service_id=PUS_HK_Subtype_ID.HK_DIS_PERIODIC_REPORTS.value,
-                                    command_data=Command_data.HK_UC_FPGA.value),
         }
         self.hk_window = ButtonWindow("Housekeeping Commands", get_hk_buttons(callbacks))
         self.hk_window.show()  # Use show() instead of exec_()
@@ -232,14 +207,8 @@ class SerialApp(QWidget):
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
                             command_data=get_LOAD_NEW_IMAGE()),
             
-            'get_sensor_data' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
-                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=get_SENSOR_DATA()),
             'get_whole_swt_FPGA' : lambda: self.GetSweepLoop(),
             'set_whole_swt_FPGA' : lambda: self.SetSweepLoop(),
-            'set_period_HK' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
-                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=set_PERIOD_HK()),
         }
         self.fm_window = ButtonWindow("FM commands", get_fm_buttons(callbacks))
         self.fm_window.show()
