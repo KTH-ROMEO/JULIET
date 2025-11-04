@@ -2,6 +2,7 @@ import sys
 import serial
 import threading
 import pandas as pd
+import datetime
 from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
                              QTextEdit, QPushButton, QListWidget, QLabel, QSplitter, QListWidgetItem, QGridLayout)
 
@@ -183,13 +184,9 @@ class SerialApp(QWidget):
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
                             command_data=get_FM_GET_CPY_SWT_FRAM_TO_FPGA()),
 
-            'en_CB' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
-                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=get_FM_ENABLE_CB_MODE()),
+            'en_CB' : lambda: self.Enable_CB(),
 
-            'dis_CB' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
-                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=get_FM_DISABLE_CB_MODE()),
+            'dis_CB' : lambda: self.Disable_CB(),
 
             'gen_Sweep' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
@@ -213,6 +210,19 @@ class SerialApp(QWidget):
         self.fm_window = ButtonWindow("FM commands", get_fm_buttons(callbacks))
         self.fm_window.show()
 
+    def Enable_CB(self):
+        logfilename = datetime.datetime.now().strftime('%Y%m%dT%H%M%S') + '_CB_data.csv'
+        global f
+        f = open(logfilename, "w", encoding="utf-8")
+        f.write(f"Counter, G1, Probe1, G2, Probe2"+ '\n')
+        self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=get_FM_ENABLE_CB_MODE())
+    def Disable_CB(self):
+        f.close()
+        self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
+                            command_data=get_FM_DISABLE_CB_MODE())
     def GetSweepLoop(self):
         i=0
         while i<256:
@@ -296,6 +306,15 @@ class SerialApp(QWidget):
                                 if decoded[6] == Function_ID.GET_SWT_VOL_LVL_ID.value:
                                     print("GOT HERE")
                                     self.FPGA_Sweep_Tables.Table[decoded[7]][decoded[8]] = decoded[9]<<8 | decoded[10]
+                                elif decoded[6] == 0x09:
+                                    
+                                    SC_counter=int.from_bytes(decoded[7:9])
+                                    Sc_g1=decoded[9]>>6
+                                    Sc_val1=((decoded[9]&0x3F)<<16)|(decoded[10]<<8)|decoded[11]
+                                    Sc_g2=decoded[12]>>6
+                                    Sc_val2=((decoded[12]&0x3F)<<16)|(decoded[13]<<8)|decoded[14]
+                                    f.write(f"{SC_counter}, {Sc_g1}, {Sc_val1}, {Sc_g2}, {Sc_val2}"+ '\n')
+
 
                         except Exception as e:
                             print("Error occured: ", e)
