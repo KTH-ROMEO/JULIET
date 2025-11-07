@@ -87,6 +87,10 @@ class SerialApp(QWidget):
                                     sub_service_id=PUS_HK_Subtype_ID.HK_SET_PERIOD.value,
                                     command_data=set_period_HK()),
 
+            'get_period_HK' : lambda: self.send_command(service_id=PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value,
+                                    sub_service_id=PUS_HK_Subtype_ID.HK_GET_PERIOD.value,
+                                    command_data=get_period_HK()),
+
 
         }
         self.hk_window = ButtonWindow("Housekeeping Commands", get_hk_buttons(callbacks))
@@ -308,12 +312,18 @@ class SerialApp(QWidget):
                                     self.FPGA_Sweep_Tables.Table[decoded[7]][decoded[8]] = decoded[9]<<8 | decoded[10]
                                 elif decoded[6] == 0x09:
                                     
-                                    SC_counter=int.from_bytes(decoded[7:9])
-                                    Sc_g1=decoded[9]>>6
-                                    Sc_val1=((decoded[9]&0x3F)<<16)|(decoded[10]<<8)|decoded[11]
-                                    Sc_g2=decoded[12]>>6
-                                    Sc_val2=((decoded[12]&0x3F)<<16)|(decoded[13]<<8)|decoded[14]
-                                    f.write(f"{SC_counter}, {Sc_g1}, {Sc_val1}, {Sc_g2}, {Sc_val2}"+ '\n')
+
+                                    SC_counter = int.from_bytes(decoded[7:9], 'big')
+                                    n_points = int((spp_header.data_len - 2) / 6)
+                                    data_start = 9
+                                    for i in range(n_points):
+                                        base = data_start + i * 6
+                                        Sc_g1 = decoded[base] >> 6
+                                        Sc_val1 = ((decoded[base] & 0x3F) << 16) | (decoded[base + 1] << 8) | decoded[base + 2]
+                                        Sc_g2 = decoded[base + 3] >> 6
+                                        Sc_val2 = ((decoded[base + 3] & 0x3F) << 16) | (decoded[base + 4] << 8) | decoded[base + 5]
+                                        f.write(f"{SC_counter}, {Sc_g1}, {Sc_val1}, {Sc_g2}, {Sc_val2}"+ '\n')
+                                        SC_counter += 1
 
 
                         except Exception as e:

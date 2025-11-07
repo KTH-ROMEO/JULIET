@@ -28,6 +28,8 @@ class Function_ID(Enum):
 
     COPY_SWT_FRAM_TO_FPGA                   = 0xE0
 
+    GET_PERIOD_HK                           = 0xE9
+
     REBOOT_DEVICE_ID                        = 0xF3
     JUMP_TO_IMAGE                           = 0xF4
     LOAD_TO_IMAGE                           = 0xF5 
@@ -206,6 +208,11 @@ def set_period_HK():
     Global_Variables.HK_ID & 0xFF,
     Global_Variables.HK_PERIOD & 0xFF]
 
+def get_period_HK():
+
+    return [
+    0x01, 
+    Global_Variables.HK_ID & 0xFF]
 
 
 def get_FM_GET_WHOLE_SWT(i):

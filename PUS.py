@@ -18,6 +18,7 @@ class PUS_HK_Subtype_ID(Enum):
     HK_PARAMETER_REPORT                     = 25 
     HK_ONE_SHOT                             = 27
     HK_SET_PERIOD                           = 31
+    HK_GET_PERIOD                           = 33
 
 class PUS_TEST_Subtype_ID(Enum):
     T_ARE_YOU_ALIVE_TEST_ID                 = 1

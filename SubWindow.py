@@ -278,6 +278,18 @@ class InputWindow(QWidget):
 
             self.save_button.clicked.connect(lambda: self.save_input(description, callback))
 
+        elif description == "get_period_HK":
+
+            self.input_1_label = QLabel("HK ID: ")
+            self.input_1_box = QLineEdit()
+            self.save_button = QPushButton("Send Command")
+
+            layout.addWidget(self.input_1_label)
+            layout.addWidget(self.input_1_box)
+            layout.addWidget(self.save_button)
+
+            self.save_button.clicked.connect(lambda: self.save_input(description, callback))
+
         self.setLayout(layout)
 
     
@@ -419,6 +431,11 @@ class InputWindow(QWidget):
                 hk_period = self.input_2_box.text()
                 Global_Variables.HK_ID = int(hk_id)
                 Global_Variables.HK_PERIOD = int(hk_period)
+                callback()
+
+            elif description == "get_period_HK":
+                hk_id = self.input_1_box.text()
+                Global_Variables.HK_ID = int(hk_id)
                 callback()
 
 
