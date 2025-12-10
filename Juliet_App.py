@@ -20,6 +20,8 @@ from HK_Buttons import *
 from SweepTable_MCU_Buttons import *
 from FM_Buttons import *
 
+ENABLE_CB = False
+
 class SerialApp(QWidget):
     def __init__(self):
         super().__init__()
@@ -215,15 +217,34 @@ class SerialApp(QWidget):
         self.fm_window.show()
 
     def Enable_CB(self):
+        global ENABLE_CB
+        ENABLE_CB = True
         logfilename = datetime.datetime.now().strftime('%Y%m%dT%H%M%S') + '_CB_data.csv'
+        logfilename2 = datetime.datetime.now().strftime('%Y%m%dT%H%M%S') + '_HK_data.csv'
+
         global f
+        global f2
+        global ACC_COUNTER
+        global MAG_COUNTER
+        global GYRO_COUNTER
+        global PRES_COUNTER
+        ACC_COUNTER = 0
+        MAG_COUNTER = 0
+        GYRO_COUNTER = 0
+        PRES_COUNTER = 0
+
         f = open(logfilename, "w", encoding="utf-8")
+        f2 = open(logfilename2, "w", encoding="utf-8")
         f.write(f"Counter, G1, Probe1, G2, Probe2"+ '\n')
+        f2.write(f"Counter, HK type, data"+ '\n')
         self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
                             command_data=get_FM_ENABLE_CB_MODE())
     def Disable_CB(self):
+        global ENABLE_CB
+        ENABLE_CB = False
         f.close()
+        f2.close()
         self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
                             command_data=get_FM_DISABLE_CB_MODE())
@@ -252,6 +273,9 @@ class SerialApp(QWidget):
         self.read_thread.start()
 
     def read_serial_data(self):
+
+        global ACC_COUNTER, MAG_COUNTER, GYRO_COUNTER, PRES_COUNTER, ERROR_HK_ID_COUNTER
+
         buffer = bytearray()
         started = False
         while True:
@@ -275,6 +299,38 @@ class SerialApp(QWidget):
 
                             if(spp_header.sec_head_flag == 1):
                                 pus_header = PUS_TM_decode(decoded[6:15])
+                                if ENABLE_CB:
+                                    if pus_header.service_id == PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value \
+                                    and pus_header.subtype_id == PUS_HK_Subtype_ID.HK_PARAMETER_REPORT.value:
+                                        
+                                        SID = decoded[15]
+                                        data_payload = decoded[16:24]
+                                        hex_payload = " ".join(f"0x{b:02X}" for b in data_payload)  
+
+                                        if SID == 0x01:
+                                            ACC_COUNTER += 1
+                                            HK_TYPE = "ACC"
+                                            HK_COUNTER = ACC_COUNTER
+                                        elif SID == 0x02:
+                                            MAG_COUNTER += 1
+                                            HK_TYPE = "MAG"
+                                            HK_COUNTER = MAG_COUNTER
+                                        elif SID == 0x03:
+                                            GYRO_COUNTER += 1
+                                            HK_TYPE = "GYRO"
+                                            HK_COUNTER = GYRO_COUNTER
+                                        elif SID == 0x04:
+                                            PRES_COUNTER += 1
+                                            HK_TYPE = "PRES"
+                                            HK_COUNTER = PRES_COUNTER
+                                        else:
+                                            ERROR_HK_ID_COUNTER += 1
+                                            HK_COUNTER = ERROR_HK_ID_COUNTER
+                                            HK_TYPE = "ERROR HK ID"
+                                            data_payload = None
+
+                                        f2.write(f"{HK_COUNTER},{HK_TYPE},{hex_payload}\n")
+
 
                             hex_decoded = " ".join(f"0x{b:02X}" for b in decoded)
                             print("     COBS Decoded:  ", hex_decoded)
@@ -334,6 +390,7 @@ class SerialApp(QWidget):
                         started = False
 
     def show_decoded_details(self, item):
+    
         index = self.msg_list.row(item)
         if index >= len(self.messages):
             return  # Handle edge cases
@@ -385,27 +442,8 @@ class SerialApp(QWidget):
                 details.append(f"  Time: {pus_header.time}")
                 details.append(f"")
 
-                if pus_header.service_id == PUS_Service_ID.HOUSEKEEPING_SERVICE_ID.value and pus_header.subtype_id == PUS_HK_Subtype_ID.HK_PARAMETER_REPORT.value:
-                    SID = (decoded[15] | (decoded[16] << 8))
-                    if SID == 0xAAAA:
-                        HK_report = HK_uC_Report()
-                        HK_report.vbat_i = decoded[20] << 24 | decoded[19] << 16 | decoded[18] << 8 | decoded[17] 
-                        HK_report.temperature_i = decoded[24] << 24 | decoded[23] << 16 | decoded[22] << 8 | decoded[21] 
-                        HK_report.uc3v_i = decoded[28] << 24 | decoded[27] << 16 | decoded[26] << 8 | decoded[25] 
-                        details.append("\nMicrocontroller Report Data:")
-                        details.append(f"  VBAT_I: {HK_report.vbat_i}")
-                        details.append(f"  TEMPERATURE_I: {HK_report.temperature_i}")
-                        details.append(f"  UC3V_I: {HK_report.uc3v_i}")
-
-                    if SID == 0x5555:
-                        HK_report = HK_FPGA_Report()
-                        HK_report.fpga1p5v_i = decoded[20] << 24 | decoded[19] << 16 | decoded[18] << 8 | decoded[17] 
-                        HK_report.fpga3v_i = decoded[24] << 24 | decoded[23] << 16 | decoded[22] << 8 | decoded[21] 
-                        details.append("\nFPGA Report Data:")
-                        details.append(f"  FPGA_1P5V_I: {HK_report.fpga1p5v_i}")
-                        details.append(f"  FPGA_3V_I: {HK_report.fpga3v_i}")
-                
-                elif pus_header.service_id == PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value and pus_header.subtype_id == PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value:
+                        
+                if pus_header.service_id == PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value and pus_header.subtype_id == PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value:
                     FM_SWT_report = FM_Sweep_Table_Report()
                     FM_SWT_report.target = decoded[15]
                     FM_SWT_report.sweep_table_id = decoded[16]
