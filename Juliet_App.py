@@ -378,6 +378,12 @@ class SerialApp(QWidget):
                                         Sc_val1 = ((decoded[base] & 0x3F) << 16) | (decoded[base + 1] << 8) | decoded[base + 2]
                                         Sc_g2 = decoded[base + 3] >> 6
                                         Sc_val2 = ((decoded[base + 3] & 0x3F) << 16) | (decoded[base + 4] << 8) | decoded[base + 5]
+                                        if Sc_val1>131071:
+                                            Sc_val1=Sc_val1-131072
+                                        if Sc_val2>131071:
+                                            Sc_val2=Sc_val1-131072
+                                        Sc_val1=Sc_val1*10/131072
+                                        Sc_val2=Sc_val2*10/131072
                                         f.write(f"{SC_counter}, {Sc_g1}, {Sc_val1}, {Sc_g2}, {Sc_val2}"+ '\n')
                                         SC_counter += 1
 
