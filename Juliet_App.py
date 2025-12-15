@@ -370,6 +370,7 @@ class SerialApp(QWidget):
                                     
 
                                     SC_counter = int.from_bytes(decoded[7:9], 'big')
+                                    START_PACKET = True
                                     n_points = int((spp_header.data_len - 2) / 6)
                                     data_start = 9
                                     for i in range(n_points):
@@ -384,7 +385,6 @@ class SerialApp(QWidget):
                                             Sc_val2=Sc_val1-131072
                                         Sc_val1=Sc_val1*10/131072
                                         Sc_val2=Sc_val2*10/131072
-                                        f.write(f"{SC_counter}, {Sc_g1}, {Sc_val1}, {Sc_g2}, {Sc_val2}"+ '\n')
                                         if START_PACKET:
                                             f.write(f"{"START"},{SC_counter}, {Sc_g1}, {Sc_val1}, {Sc_g2}, {Sc_val2}"+ '\n')
                                         else:
