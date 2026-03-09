@@ -16,7 +16,6 @@ class HK_FPGA_Report:
 
 class FM_Sweep_Table_Report:
     def __init__(self):
-        self.target             = 0
         self.sweep_table_id     = 0
         self.step_id            = 0
         self.voltage_level      = 0

@@ -23,7 +23,7 @@ class InputWindow(QWidget):
 
         layout = QVBoxLayout()
 
-        if description == "set_swt_MCU_v":
+        if description == "set_swt_v":
             Global_Variables.APPLY_ON_ENTIRE_SWEEP_TABLE = 0
              # Optional: add a label for clarity
             self.input_1_label = QLabel("Sweep Table ID: ")
@@ -50,7 +50,7 @@ class InputWindow(QWidget):
             self.input_2_button.toggled.connect(self.toggle_inputs)
             self.save_button.clicked.connect(lambda: self.save_input(description, callback))
         
-        elif description == "get_swt_MCU_v":
+        elif description == "get_swt_v":
              # Optional: add a label for clarity
             self.input_1_label = QLabel("Sweep Table ID: ")
             self.input_1_box = QLineEdit()
@@ -114,42 +114,6 @@ class InputWindow(QWidget):
             self.save_button.clicked.connect(lambda: self.save_input(description, callback))
         
         
-        elif description == "set_swt_FPGA_v":
-             # Optional: add a label for clarity
-            self.input_1_label = QLabel("Sweep Table ID: ")
-            self.input_1_box = QLineEdit()
-            self.input_2_label = QLabel("Step ID: ")
-            self.input_2_box = QLineEdit()
-            self.input_3_label = QLabel("Voltage Level: ")
-            self.input_3_box = QLineEdit()
-            self.save_button = QPushButton("Send Command")
-
-            layout.addWidget(self.input_1_label)
-            layout.addWidget(self.input_1_box)
-            layout.addWidget(self.input_2_label)
-            layout.addWidget(self.input_2_box)
-            layout.addWidget(self.input_3_label)
-            layout.addWidget(self.input_3_box)
-            layout.addWidget(self.save_button)
-
-            self.save_button.clicked.connect(lambda: self.save_input(description, callback))
-        
-        elif description == "get_swt_FPGA_v":
-             # Optional: add a label for clarity
-            self.input_1_label = QLabel("Sweep Table ID: ")
-            self.input_1_box = QLineEdit()
-            self.input_2_label = QLabel("Step ID: ")
-            self.input_2_box = QLineEdit()
-            self.save_button = QPushButton("Send Command")
-
-            layout.addWidget(self.input_1_label)
-            layout.addWidget(self.input_1_box)
-            layout.addWidget(self.input_2_label)
-            layout.addWidget(self.input_2_box)
-            layout.addWidget(self.save_button)
-
-            self.save_button.clicked.connect(lambda: self.save_input(description, callback))
-
         elif description == "get_whole_swt_FPGA":
              # Optional: add a label for clarity
             self.input_1_label = QLabel("Sweep Table ID: ")
@@ -222,23 +186,6 @@ class InputWindow(QWidget):
 
             self.save_button.clicked.connect(lambda: self.save_input(description, callback))
         
-        elif description == "cpy_FRAM_to_FPGA":
-             # Optional: add a label for clarity
-            self.input_1_label = QLabel("FRAM Sweep Table ID: ")
-            self.input_1_box = QLineEdit()
-            self.input_3_label = QLabel("FPGA Sweep Table ID: ")
-            self.input_3_box = QLineEdit()
-            self.save_button = QPushButton("Send Command")
-
-            layout.addWidget(self.input_1_label)
-            layout.addWidget(self.input_1_box)
-
-            layout.addWidget(self.input_3_label)
-            layout.addWidget(self.input_3_box)
-            layout.addWidget(self.save_button)
-
-            self.save_button.clicked.connect(lambda: self.save_input(description, callback))
-
         elif description == "jump_to_image":
             self.input_1_label = QLabel("Index of desired firmware image: ")
             self.input_1_box = QLineEdit()
@@ -308,22 +255,21 @@ class InputWindow(QWidget):
             if description == "set_CB_voltage":
                 probe_id = self.input_1_box.text()
                 voltage_value = self.input_2_box.text()
-                Global_Variables.LANGMUIR_PROBE_ID = int(probe_id)
+                Global_Variables.TABLE_ID = int(probe_id)
                 Global_Variables.CB_MODE_VOLTAGE = int(voltage_value)
                 callback()
 
             elif description == "get_CB_voltage":
                 probe_id = self.input_1_box.text()
-                Global_Variables.LANGMUIR_PROBE_ID = int(probe_id)
+                Global_Variables.TABLE_ID = int(probe_id)
                 callback()
 
-            elif description == "set_swt_MCU_v":
+            elif description == "set_swt_v":
                 probe_id = self.input_1_box.text()
                 step_id = self.input_3_box.text()
                 voltage_lvl = self.input_4_box.text()
 
-                Global_Variables.TARGET = 1
-                Global_Variables.LANGMUIR_PROBE_ID = int(probe_id)
+                Global_Variables.TABLE_ID = int(probe_id)
                 Global_Variables.SWEEP_TABLE_VOLTAGE = int(voltage_lvl)
 
                 if Global_Variables.APPLY_ON_ENTIRE_SWEEP_TABLE == 1:
@@ -336,11 +282,10 @@ class InputWindow(QWidget):
                     Global_Variables.STEP_ID = int(step_id)
                     callback()
 
-            elif description == "get_swt_MCU_v":
+            elif description == "get_swt_v":
                 probe_id = self.input_1_box.text()
                 step_id = self.input_3_box.text()
-                Global_Variables.TARGET = 1
-                Global_Variables.LANGMUIR_PROBE_ID = int(probe_id)
+                Global_Variables.TABLE_ID = int(probe_id)
 
                 if Global_Variables.APPLY_ON_ENTIRE_SWEEP_TABLE == 1:
                     Global_Variables.APPLY_ON_ENTIRE_SWEEP_TABLE = 0
@@ -352,34 +297,15 @@ class InputWindow(QWidget):
                     Global_Variables.STEP_ID = int(step_id)
                     callback()
 
-            elif description == "set_swt_FPGA_v":
-                probe_id = self.input_1_box.text()
-                step_id = self.input_2_box.text()
-                voltage_lvl = self.input_3_box.text()
-                Global_Variables.TARGET = 0
-                Global_Variables.LANGMUIR_PROBE_ID = int(probe_id)
-                Global_Variables.STEP_ID = int(step_id)
-                Global_Variables.SWEEP_TABLE_VOLTAGE = int(voltage_lvl)
-                callback()
             
             elif description == "set_whole_swt_FPGA":
                 probe_id = self.input_1_box.text()
-                Global_Variables.TARGET = 0
-                Global_Variables.LANGMUIR_PROBE_ID = int(probe_id)
-                callback()
-
-            elif description == "get_swt_FPGA_v":
-                probe_id = self.input_1_box.text()
-                step_id = self.input_2_box.text()
-                Global_Variables.TARGET = 0
-                Global_Variables.LANGMUIR_PROBE_ID = int(probe_id)
-                Global_Variables.STEP_ID = int(step_id)
+                Global_Variables.TABLE_ID = int(probe_id)
                 callback()
 
             elif description == "get_whole_swt_FPGA":
                 probe_id = self.input_1_box.text()
-                Global_Variables.TARGET = 0
-                Global_Variables.LANGMUIR_PROBE_ID = int(probe_id)
+                Global_Variables.TABLE_ID = int(probe_id)
                 callback()
 
             elif description == "set_steps_SB_mode":
@@ -405,13 +331,6 @@ class InputWindow(QWidget):
             elif description == "set_points_per_step":
                 points_per_step = self.input_1_box.text()
                 Global_Variables.SB_MODE_NR_POINTS_PER_STEP = int(points_per_step)
-                callback()
-
-            elif description == "cpy_FRAM_to_FPGA":
-                FRAM_swt_id = self.input_1_box.text()
-                FPGA_swt_id = self.input_3_box.text()
-                Global_Variables.FRAM_TABLE_ID = int(FRAM_swt_id)
-                Global_Variables.LANGMUIR_PROBE_ID = int(FPGA_swt_id)
                 callback()
 
             elif description == "jump_to_image":

@@ -122,11 +122,11 @@ class SerialApp(QWidget):
 
     def show_FM_commands(self):
         callbacks = {
-            'set_swt_MCU_v' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+            'set_swt_v' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
                             command_data=get_FM_SET_VOLTAGE_LEVEL_SWEEP_TABLE()),
 
-            'get_swt_MCU_v' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
+            'get_swt_v' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
                             command_data=get_FM_GET_VOLTAGE_LEVEL_SWEEP_TABLE()),
 
@@ -137,14 +137,6 @@ class SerialApp(QWidget):
             'get_CB_voltage' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
                             command_data=get_FM_GET_CURRENT_CONSTANT_BIAS_VALUE()),
-
-            'set_swt_FPGA_v' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
-                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=get_FM_SET_VOLTAGE_LEVEL_SWEEP_TABLE()),
-
-            'get_swt_FPGA_v' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
-                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=get_FM_GET_VOLTAGE_LEVEL_SWEEP_TABLE()),
 
             'set_steps_SB_mode' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
@@ -185,10 +177,6 @@ class SerialApp(QWidget):
             'get_points_per_step' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
                             sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
                             command_data=get_FM_GET_POINTS_PER_STEP()),
-
-            'cpy_FRAM_to_FPGA' : lambda: self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value,
-                            sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value,
-                            command_data=get_FM_GET_CPY_SWT_FRAM_TO_FPGA()),
 
             'en_CB' : lambda: self.Enable_CB(),
 
@@ -386,9 +374,9 @@ class SerialApp(QWidget):
                                         Sc_val1=Sc_val1*10/131072
                                         Sc_val2=Sc_val2*10/131072
                                         if START_PACKET:
-                                            f.write(f"{"START"},{SC_counter}, {Sc_g1}, {Sc_val1}, {Sc_g2}, {Sc_val2}"+ '\n')
+                                            f.write(f"START,{SC_counter}, {Sc_g1}, {Sc_val1}, {Sc_g2}, {Sc_val2}"+ '\n')
                                         else:
-                                            f.write(f"{"GOING"},{SC_counter}, {Sc_g1}, {Sc_val1}, {Sc_g2}, {Sc_val2}"+ '\n')
+                                            f.write(f"GOING,{SC_counter}, {Sc_g1}, {Sc_val1}, {Sc_g2}, {Sc_val2}"+ '\n')
                                         SC_counter += 1
                                         START_PACKET = False
 
@@ -456,13 +444,11 @@ class SerialApp(QWidget):
                         
                 if pus_header.service_id == PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value and pus_header.subtype_id == PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value:
                     FM_SWT_report = FM_Sweep_Table_Report()
-                    FM_SWT_report.target = decoded[15]
-                    FM_SWT_report.sweep_table_id = decoded[16]
-                    FM_SWT_report.step_id = decoded[17]
-                    FM_SWT_report.voltage_level = decoded[18]<<8 | decoded[19] 
+                    FM_SWT_report.sweep_table_id = decoded[15]
+                    FM_SWT_report.step_id = decoded[16]
+                    FM_SWT_report.voltage_level = decoded[17]<<8 | decoded[18] 
                     
                     details.append("\nSweep Table Info:")
-                    details.append(f"  Target: {FM_SWT_report.target}")
                     details.append(f"  Sweep Table ID: {FM_SWT_report.sweep_table_id}")
                     details.append(f"  Step ID: {FM_SWT_report.step_id}")
                     details.append(f"  Voltage Level: {FM_SWT_report.voltage_level}")

@@ -26,7 +26,6 @@ class Function_ID(Enum):
     GET_SWT_SAMPLES_PER_POINT_ID            = 0x98
     GET_SWT_NPOINTS_ID                      = 0xA8
 
-    COPY_SWT_FRAM_TO_FPGA                   = 0xE0
 
     GET_PERIOD_HK                           = 0xE9
 
@@ -38,35 +37,32 @@ class Function_ID(Enum):
 
 class Argument_ID(Enum):
 
-    PROBE_ID_ARG_ID                         = 0x01
+    TABLE_ID_ARG_ID                         = 0x01
     STEP_ID_ARG_ID                          = 0x02
     VOL_LVL_ARG_ID                          = 0x03
     N_STEPS_ARG_ID                          = 0x04
     N_SKIP_ARG_ID                           = 0x05
     N_F_ARG_ID                              = 0x06
     N_POINTS_ARG_ID                         = 0x07
-    GS_TARGET_ARG_ID                        = 0x08
-    FRAM_TABLE_ID_ARG_ID                    = 0x09
     N_SAMPLES_PER_STEP_ARG_ID               = 0x0A
     IMAGE_INDEX                             = 0x0B
-
 
 class Command_data(Enum):
     
     TS_EMPTY  = []
 
     FM_GET_VOLTAGE_LEVEL_SWEEP_MODE_FRAM    = [Function_ID.GET_SWT_VOL_LVL_ID.value, 
-                                                0x03,   
-                                                Argument_ID.PROBE_ID_ARG_ID.value,  0x00,  
-                                                Argument_ID.STEP_ID_ARG_ID.value,   0x1A, 
-                                                Argument_ID.GS_TARGET_ARG_ID.value, 0x01]
+                                                0x02,   
+                                                Argument_ID.TABLE_ID_ARG_ID.value,  0x00,  
+                                                Argument_ID.STEP_ID_ARG_ID.value,   0x1A
+                                                ]
     
     
 def get_FM_SET_CONSTANT_BIAS_VOLTAGE():
     return [
         Function_ID.SET_CB_VOL_LVL_ID.value,        
         0x02,   
-        Argument_ID.PROBE_ID_ARG_ID.value,  Global_Variables.LANGMUIR_PROBE_ID & 0xFF,  
+        Argument_ID.TABLE_ID_ARG_ID.value,  Global_Variables.TABLE_ID & 0xFF,  
         Argument_ID.VOL_LVL_ARG_ID.value,   (Global_Variables.CB_MODE_VOLTAGE >> 8) & 0xFF, Global_Variables.CB_MODE_VOLTAGE & 0xFF
         ]
 
@@ -74,24 +70,22 @@ def get_FM_GET_CURRENT_CONSTANT_BIAS_VALUE():
     return [
         Function_ID.GET_CB_VOL_LVL_ID.value,       
         0x01,   
-        Argument_ID.PROBE_ID_ARG_ID.value,  Global_Variables.LANGMUIR_PROBE_ID & 0xFF]
+        Argument_ID.TABLE_ID_ARG_ID.value,  Global_Variables.TABLE_ID & 0xFF]
 
 def get_FM_SET_VOLTAGE_LEVEL_SWEEP_TABLE():
     return [
         Function_ID.SET_SWT_VOL_LVL_ID.value, 
-        0x04,   
-        Argument_ID.PROBE_ID_ARG_ID.value,     Global_Variables.LANGMUIR_PROBE_ID & 0xFF,  
+        0x03,   
+        Argument_ID.TABLE_ID_ARG_ID.value,     Global_Variables.TABLE_ID & 0xFF,  
         Argument_ID.STEP_ID_ARG_ID.value,      Global_Variables.STEP_ID & 0xFF,   
-        Argument_ID.VOL_LVL_ARG_ID.value,      (Global_Variables.SWEEP_TABLE_VOLTAGE >> 8) & 0xFF, Global_Variables.SWEEP_TABLE_VOLTAGE & 0xFF, 
-        Argument_ID.GS_TARGET_ARG_ID.value,    Global_Variables.TARGET]
+        Argument_ID.VOL_LVL_ARG_ID.value,      (Global_Variables.SWEEP_TABLE_VOLTAGE >> 8) & 0xFF, Global_Variables.SWEEP_TABLE_VOLTAGE & 0xFF] 
 
 def get_FM_GET_VOLTAGE_LEVEL_SWEEP_TABLE():
     return [
         Function_ID.GET_SWT_VOL_LVL_ID.value, 
-        0x03,   
-        Argument_ID.PROBE_ID_ARG_ID.value,  Global_Variables.LANGMUIR_PROBE_ID & 0xFF,  
-        Argument_ID.STEP_ID_ARG_ID.value,   Global_Variables.STEP_ID & 0xFF, 
-        Argument_ID.GS_TARGET_ARG_ID.value, Global_Variables.TARGET]
+        0x02,   
+        Argument_ID.TABLE_ID_ARG_ID.value,  Global_Variables.TABLE_ID & 0xFF,  
+        Argument_ID.STEP_ID_ARG_ID.value,   Global_Variables.STEP_ID & 0xFF]
 
 def get_FM_SET_STEPS_SB_MODE():
     return [
@@ -148,13 +142,7 @@ def get_FM_GET_POINTS_PER_STEP():
         Function_ID.GET_SWT_NPOINTS_ID.value, 
         0x00]
 
-def get_FM_GET_CPY_SWT_FRAM_TO_FPGA():
-    return [
-        Function_ID.COPY_SWT_FRAM_TO_FPGA.value, 
-        0x02,
-        Argument_ID.PROBE_ID_ARG_ID.value, Global_Variables.LANGMUIR_PROBE_ID & 0xFF,
-        Argument_ID.FRAM_TABLE_ID_ARG_ID.value, Global_Variables.FRAM_TABLE_ID & 0xFF
-        ]
+
 
 def get_FM_ENABLE_CB_MODE():
     return [
@@ -218,16 +206,14 @@ def get_period_HK():
 def get_FM_GET_WHOLE_SWT(i):
     return [
         Function_ID.GET_SWT_VOL_LVL_ID.value, 
-        0x03,   
-        Argument_ID.PROBE_ID_ARG_ID.value,  Global_Variables.LANGMUIR_PROBE_ID & 0xFF,  
-        Argument_ID.STEP_ID_ARG_ID.value,   i & 0xFF, 
-        Argument_ID.GS_TARGET_ARG_ID.value, Global_Variables.TARGET]
+        0x02,   
+        Argument_ID.TABLE_ID_ARG_ID.value,  Global_Variables.TABLE_ID & 0xFF,  
+        Argument_ID.STEP_ID_ARG_ID.value,   i & 0xFF]
 
 def get_FM_SET_WHOLE_SWT(i,value):
     return [
         Function_ID.SET_SWT_VOL_LVL_ID.value, 
-        0x04,   
-        Argument_ID.PROBE_ID_ARG_ID.value,     Global_Variables.LANGMUIR_PROBE_ID & 0xFF,  
+        0x03,   
+        Argument_ID.TABLE_ID_ARG_ID.value,     Global_Variables.TABLE_ID & 0xFF,  
         Argument_ID.STEP_ID_ARG_ID.value,      i & 0xFF,   
-        Argument_ID.VOL_LVL_ARG_ID.value,      (value >> 8) & 0xFF, value & 0xFF, 
-        Argument_ID.GS_TARGET_ARG_ID.value,    Global_Variables.TARGET]
+        Argument_ID.VOL_LVL_ARG_ID.value,      (value >> 8) & 0xFF, value & 0xFF]
