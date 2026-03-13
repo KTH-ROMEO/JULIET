@@ -186,6 +186,19 @@ class InputWindow(QWidget):
 
             self.save_button.clicked.connect(lambda: self.save_input(description, callback))
         
+        elif description == "cpy_FRAM_to_FPGA":
+             # Optional: add a label for clarity
+            self.input_1_label = QLabel("Table ID: ")
+            self.input_1_box = QLineEdit()
+            self.save_button = QPushButton("Send Command")
+
+            layout.addWidget(self.input_1_label)
+            layout.addWidget(self.input_1_box)
+
+            layout.addWidget(self.save_button)
+
+            self.save_button.clicked.connect(lambda: self.save_input(description, callback))
+
         elif description == "jump_to_image":
             self.input_1_label = QLabel("Index of desired firmware image: ")
             self.input_1_box = QLineEdit()
@@ -331,6 +344,11 @@ class InputWindow(QWidget):
             elif description == "set_points_per_step":
                 points_per_step = self.input_1_box.text()
                 Global_Variables.SB_MODE_NR_POINTS_PER_STEP = int(points_per_step)
+                callback()
+
+            elif description == "cpy_FRAM_to_FPGA":
+                table_id = self.input_1_box.text()
+                Global_Variables.TABLE_ID = int(table_id)
                 callback()
 
             elif description == "jump_to_image":

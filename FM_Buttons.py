@@ -18,6 +18,7 @@ def get_fm_buttons(callbacks):
         QPushButton('Get Samples per point'),
         QPushButton('Set Points per Step'),
         QPushButton('Get Points per Step'),
+        QPushButton('Copy SWT from FRAM to FPGA'),
         QPushButton('Enable CB Mode'),
         QPushButton('Disable CB Mode'),
         QPushButton('Generate one Sweep'),
@@ -44,14 +45,15 @@ def get_fm_buttons(callbacks):
     buttons[11].clicked.connect(lambda: callbacks['get_samples_per_point']())
     buttons[12].clicked.connect(lambda: get_input("set_points_per_step", callbacks['set_points_per_step']))
     buttons[13].clicked.connect(lambda: callbacks['get_points_per_step']())
-    buttons[14].clicked.connect(lambda: callbacks['en_CB']())
-    buttons[15].clicked.connect(lambda: callbacks['dis_CB']())
-    buttons[16].clicked.connect(lambda: callbacks['gen_Sweep']())
-    buttons[17].clicked.connect(lambda: callbacks['reboot_device']())
-    buttons[18].clicked.connect(lambda: get_input("jump_to_image", callbacks['jump_to_image']))
-    buttons[19].clicked.connect(lambda: callbacks['load_new_image']())
-    buttons[20].clicked.connect(lambda: get_input("get_whole_swt_FPGA", callbacks['get_whole_swt_FPGA']))
-    buttons[21].clicked.connect(lambda: get_input("set_whole_swt_FPGA", callbacks['set_whole_swt_FPGA']))
+    buttons[14].clicked.connect(lambda: get_input("cpy_FRAM_to_FPGA", callbacks['cpy_FRAM_to_FPGA']))
+    buttons[15].clicked.connect(lambda: callbacks['en_CB']())
+    buttons[16].clicked.connect(lambda: callbacks['dis_CB']())
+    buttons[17].clicked.connect(lambda: callbacks['gen_Sweep']())
+    buttons[18].clicked.connect(lambda: callbacks['reboot_device']())
+    buttons[19].clicked.connect(lambda: get_input("jump_to_image", callbacks['jump_to_image']))
+    buttons[20].clicked.connect(lambda: callbacks['load_new_image']())
+    buttons[21].clicked.connect(lambda: get_input("get_whole_swt_FPGA", callbacks['get_whole_swt_FPGA']))
+    buttons[22].clicked.connect(lambda: get_input("set_whole_swt_FPGA", callbacks['set_whole_swt_FPGA']))
 
     return buttons
 

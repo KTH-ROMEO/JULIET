@@ -26,7 +26,7 @@ class Function_ID(Enum):
     GET_SWT_SAMPLES_PER_POINT_ID            = 0x98
     GET_SWT_NPOINTS_ID                      = 0xA8
 
-
+    COPY_SWT_FRAM_TO_FPGA                   = 0xE0
     GET_PERIOD_HK                           = 0xE9
 
     REBOOT_DEVICE_ID                        = 0xF3
@@ -142,7 +142,12 @@ def get_FM_GET_POINTS_PER_STEP():
         Function_ID.GET_SWT_NPOINTS_ID.value, 
         0x00]
 
-
+def get_FM_GET_CPY_SWT_FRAM_TO_FPGA():
+    return [
+        Function_ID.COPY_SWT_FRAM_TO_FPGA.value, 
+        0x01,
+        Argument_ID.TABLE_ID_ARG_ID.value, Global_Variables.TABLE_ID & 0xFF
+        ]
 
 def get_FM_ENABLE_CB_MODE():
     return [
