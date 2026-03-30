@@ -28,6 +28,8 @@ def get_fm_buttons(callbacks):
 
         QPushButton('Get Whole Sweep Table FPGA'),
         QPushButton('Set Whole Sweep Table FPGA'),
+
+        QPushButton('Macro Sweep Bias Config'),
     ]
 
     # Connect buttons to callbacks
@@ -55,6 +57,8 @@ def get_fm_buttons(callbacks):
     buttons[21].clicked.connect(lambda: get_input("get_whole_swt_FPGA", callbacks['get_whole_swt_FPGA']))
     buttons[22].clicked.connect(lambda: get_input("set_whole_swt_FPGA", callbacks['set_whole_swt_FPGA']))
 
+    buttons[23].clicked.connect(lambda: get_input("macro_sweep", callbacks['macro_sweep']))
+    
     return buttons
 
 def get_input(description, callback):

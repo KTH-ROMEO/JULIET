@@ -29,6 +29,7 @@ class SerialApp(QWidget):
         self.init_ui()
         self.init_serial()
         self.Sweep_Tables = Sweep_Tables()
+        self.macro_sweep = MacroSweepCollector()
 
     def init_ui(self):
         self.setWindowTitle("JULIET")
@@ -194,6 +195,8 @@ class SerialApp(QWidget):
             
             'get_whole_swt_FPGA' : lambda: self.GetSweepLoop(),
             'set_whole_swt_FPGA' : lambda: self.SetSweepLoop(),
+
+            'macro_sweep' : lambda: self.start_macro_sweep(),
         }
         self.fm_window = ButtonWindow("FM commands", get_fm_buttons(callbacks))
         self.fm_window.show()
@@ -248,9 +251,15 @@ class SerialApp(QWidget):
                             command_data=get_FM_SET_WHOLE_SWT(int(i),int(table[i])))
             i=i+1
             time.sleep(0.05)
+    
+    def start_macro_sweep(self):
+        self.macro_sweep.reset()
+        self.send_command(service_id=PUS_Service_ID.FUNCTION_MANAGEMNET_ID.value, 
+                          sub_service_id=PUS_FM_Subtype_ID.FM_PERFORM_FUNCTION.value, 
+                          command_data=get_MACRO_SWEEP_BIAS_CONFIG(Global_Variables.MACRO_SUBOP))
 
     def init_serial(self):
-        self.ser = serial.Serial('COM3', baudrate=115200, timeout=1)
+        self.ser = serial.Serial('COM12', baudrate=115200, timeout=1)
         self.read_thread = threading.Thread(target=self.read_serial_data, daemon=True)
         self.read_thread.start()
 
@@ -341,38 +350,55 @@ class SerialApp(QWidget):
                                 self.msg_list.addItem(item)
 
                             elif spp_header.packet_type == 0 and spp_header.sec_head_flag == 0:
-                                print(hex_decoded)
-                                item = QListWidgetItem(f"Received: {hex_str}")  # Create a list item
-                                item.setForeground(QBrush(QColor("red")))  # Set text color to blue
-                                self.msg_list.addItem(item)
-                                if decoded[6] == Function_ID.GET_SWT_VOL_LVL_ID.value:
-                                    table_id = decoded[7] if decoded[7] <= 2 else decoded[7]-0xF+2
-                                    self.Sweep_Tables.Table[table_id][decoded[8]] = decoded[9]<<8 | decoded[10]
-                                elif decoded[6] == 0x09:
-                                    
+                                print(hex_decoded)      # print full decoded packet
+                                if len(decoded) > 10 and decoded[6] == Function_ID.MACRO_SWEEP_BIAS_CONFIG.value:
+                                    self.macro_sweep.process_macro_tm_packets(decoded)     # pass to macrosweep collector
 
-                                    SC_counter = int.from_bytes(decoded[7:9], 'big')
-                                    START_PACKET = True
-                                    n_points = int((spp_header.data_len - 2) / 6)
-                                    data_start = 9
-                                    for i in range(n_points):
-                                        base = data_start + i * 6
-                                        Sc_g1 = decoded[base] >> 6
-                                        Sc_val1 = ((decoded[base] & 0x3F) << 16) | (decoded[base + 1] << 8) | decoded[base + 2]
-                                        Sc_g2 = decoded[base + 3] >> 6
-                                        Sc_val2 = ((decoded[base + 3] & 0x3F) << 16) | (decoded[base + 4] << 8) | decoded[base + 5]
-                                        if Sc_val1>2097151:
-                                            Sc_val1=Sc_val1-4194304
-                                        if Sc_val2>2097151:
-                                            Sc_val2=Sc_val1-4194304
-                                        Sc_val1=(Sc_val1*10/131072)
-                                        Sc_val2=(Sc_val2*10/131072)
-                                        if START_PACKET:
-                                            f.write(f"START,{SC_counter}, {Sc_g1}, {Sc_val1}, {Sc_g2}, {Sc_val2}"+ '\n')
-                                        else:
-                                            f.write(f"GOING,{SC_counter}, {Sc_g1}, {Sc_val1}, {Sc_g2}, {Sc_val2}"+ '\n')
-                                        SC_counter += 1
-                                        START_PACKET = False
+                                    item = QListWidgetItem(f"Received: {hex_str}")
+                                    item.setForeground(QBrush(QColor("darkGray")))      # color 
+                                    self.msg_list.addItem(item)
+
+                                    subop = decoded[7]      # check subop
+                                    saved_files = self.macro_sweep.save_macro_data(subop)
+
+                                    for path in saved_files:        # save confirmation in GUI
+                                        print(f"Macro table saved: {path}")
+                                        save_item = QListWidgetItem(f"File Saved: {path}")
+                                        save_item.setForeground(QBrush(QColor("darkGreen")))
+                                        self.msg_list.addItem(save_item)
+                                        
+                                else:
+                                    item = QListWidgetItem(f"Received: {hex_str}")  # Create a list item
+                                    item.setForeground(QBrush(QColor("red")))  # Set text color to blue
+                                    self.msg_list.addItem(item)
+                                    if decoded[6] == Function_ID.GET_SWT_VOL_LVL_ID.value:
+                                        table_id = decoded[7] if decoded[7] <= 2 else decoded[7]-0xF+2
+                                        self.Sweep_Tables.Table[table_id][decoded[8]] = decoded[9]<<8 | decoded[10]
+                                    elif decoded[6] == 0x09:
+                                        
+
+                                        SC_counter = int.from_bytes(decoded[7:9], 'big')
+                                        START_PACKET = True
+                                        n_points = int((spp_header.data_len - 2) / 6)
+                                        data_start = 9
+                                        for i in range(n_points):
+                                            base = data_start + i * 6
+                                            Sc_g1 = decoded[base] >> 6
+                                            Sc_val1 = ((decoded[base] & 0x3F) << 16) | (decoded[base + 1] << 8) | decoded[base + 2]
+                                            Sc_g2 = decoded[base + 3] >> 6
+                                            Sc_val2 = ((decoded[base + 3] & 0x3F) << 16) | (decoded[base + 4] << 8) | decoded[base + 5]
+                                            if Sc_val1>2097151:
+                                                Sc_val1=Sc_val1-4194304
+                                            if Sc_val2>2097151:
+                                                Sc_val2=Sc_val1-4194304
+                                            Sc_val1=(Sc_val1*10/131072)
+                                            Sc_val2=(Sc_val2*10/131072)
+                                            if START_PACKET:
+                                                f.write(f"START,{SC_counter}, {Sc_g1}, {Sc_val1}, {Sc_g2}, {Sc_val2}"+ '\n')
+                                            else:
+                                                f.write(f"GOING,{SC_counter}, {Sc_g1}, {Sc_val1}, {Sc_g2}, {Sc_val2}"+ '\n')
+                                            SC_counter += 1
+                                            START_PACKET = False
 
 
                         except Exception as e:
@@ -476,6 +502,30 @@ class SerialApp(QWidget):
             elif decoded[6] == Function_ID.GET_SWT_NPOINTS_ID.value:
                 details.append("\nSweep Bias Mode info:")
                 details.append(f"Nr of Samples per Point: {decoded[7] << 8 | decoded[8]}")
+            elif decoded[6] == Function_ID.MACRO_SWEEP_BIAS_CONFIG.value:
+                details.append("\nMacro Sweep TM (no PUS):")        # miniheader
+                details.append(f"  FuncID: 0x{decoded[6]:02X}")
+                details.append(f"  SubOp: 0x{decoded[7]:02X}")
+                details.append(f"  Packet type: 0x{decoded[8]:02X}")
+                details.append(f"  TotalSteps: 0x{decoded[9]:02X}")
+                details.append(f"  StartStep: {decoded[10]}")
+
+                # Packet type handling 
+                if decoded[8] == 0x00:
+                    details.append(" Macro Sweep Bias Metadata:")
+                    if len(decoded) >= 22:
+                        details.append(f"   Nof act sw last power off[cnt]: {decoded[11] << 8 | decoded[12]}")
+                        details.append(f"   Nof steps SB mode: {decoded[13]}")
+                        details.append(f"   Nof samples per step: {decoded[14] << 8 | decoded[15]}")
+                        details.append(f"   Nof skipped samples: {decoded[16] << 8 | decoded[17]}")
+                        details.append(f"   Nof samples per point: {decoded[18] << 8 | decoded[19]}")
+                        details.append(f"   Nof points per step: {decoded[20] << 8 | decoded[21]}")
+                elif decoded[8] == 0x01:
+                    details.append("\nMacro Table Packet:")
+                    details.append("  Type: N-step table packet")
+                elif decoded[8] == 0x02:
+                    details.append("\nMacro Table Packet:")
+                    details.append("  Type: Full table packet")
         
         self.details_edit.setText("\n".join(details))
 
@@ -486,7 +536,6 @@ class SerialApp(QWidget):
     def show_sw_table(self, index):
         plot_window = PlotWindow(self.Sweep_Tables.Table[index], self)
         plot_window.exec_()
-
 
     def send_command(self, service_id, sub_service_id, command_data):
         cobs_msg = build_msg_SPP_PUS_Data_CRC(service_id, sub_service_id, command_data)

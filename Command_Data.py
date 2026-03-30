@@ -35,6 +35,8 @@ class Function_ID(Enum):
     SET_PERIOD_HK                           = 0xF2
     GET_SENSOR_DATA                         = 0xF9 
 
+    MACRO_SWEEP_BIAS_CONFIG                 = 0xD1
+
 class Argument_ID(Enum):
 
     TABLE_ID_ARG_ID                         = 0x01
@@ -44,8 +46,11 @@ class Argument_ID(Enum):
     N_SKIP_ARG_ID                           = 0x05
     N_F_ARG_ID                              = 0x06
     N_POINTS_ARG_ID                         = 0x07
-    N_SAMPLES_PER_STEP_ARG_ID               = 0x0A
-    IMAGE_INDEX                             = 0x0B
+    N_SAMPLES_PER_STEP_ARG_ID               = 0x0A 
+    
+    MACRO_SUBOP_ARG_ID                      = 0x0B
+
+    IMAGE_INDEX                             = 0x0C
 
 class Command_data(Enum):
     
@@ -222,3 +227,10 @@ def get_FM_SET_WHOLE_SWT(i,value):
         Argument_ID.TABLE_ID_ARG_ID.value,     Global_Variables.TABLE_ID & 0xFF,  
         Argument_ID.STEP_ID_ARG_ID.value,      i & 0xFF,   
         Argument_ID.VOL_LVL_ARG_ID.value,      (value >> 8) & 0xFF, value & 0xFF]
+
+def get_MACRO_SWEEP_BIAS_CONFIG(subop):
+    return [
+        Function_ID.MACRO_SWEEP_BIAS_CONFIG.value,
+        0x01,
+        Argument_ID.MACRO_SUBOP_ARG_ID.value, subop & 0xFF
+    ] 

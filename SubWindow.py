@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLineEdit, QLabel, QPushButton
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLineEdit, QLabel, QPushButton, QComboBox
 
 import Global_Variables
 import time
@@ -250,6 +250,22 @@ class InputWindow(QWidget):
 
             self.save_button.clicked.connect(lambda: self.save_input(description, callback))
 
+        elif description == "macro_sweep":
+            self.input_1_label = QLabel("Macro Sweep mode:")
+            self.input_1_box = QComboBox()                      # drop down menu        
+            self.input_1_box.addItem("0x01 - Metadata", 0x01)
+            self.input_1_box.addItem("0x02 - N_step tables", 0x02)
+            self.input_1_box.addItem("0x03 - Full tables", 0x03)
+            self.input_1_box.addItem("0x04 - Metadata + N_step tables", 0x04)
+            self.input_1_box.addItem("0x05 - Metadata + Full tables", 0x05)
+            self.save_button = QPushButton("Send Command")
+
+            layout.addWidget(self.input_1_label)
+            layout.addWidget(self.input_1_box)
+            layout.addWidget(self.save_button)
+
+            self.save_button.clicked.connect(lambda: self.save_input(description, callback))
+
         self.setLayout(layout)
 
     
@@ -375,6 +391,9 @@ class InputWindow(QWidget):
                 Global_Variables.HK_ID = int(hk_id)
                 callback()
 
+            elif description == "macro_sweep":
+                Global_Variables.MACRO_SUBOP = self.input_1_box.currentData()
+                callback()
 
         except ValueError:
             print("Invalid input. Please enter a valid number")
