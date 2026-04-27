@@ -1,5 +1,8 @@
 from PyQt5.QtWidgets import QPushButton
 from SubWindow import *
+from PyQt5.QtCore import Qt
+ 
+_open_input_windows = []  # keeps InputWindow references alive
 
 def get_fm_buttons(callbacks):
     """Returns a list of function management buttons connected to callback functions."""
@@ -63,4 +66,10 @@ def get_fm_buttons(callbacks):
 
 def get_input(description, callback):
     input_window = InputWindow(description, callback)
+    _open_input_windows.append(input_window)                        # prevent garbage collection
+    input_window.setAttribute(Qt.WA_DeleteOnClose)
+    input_window.destroyed.connect(
+        lambda: _open_input_windows.remove(input_window)
+        if input_window in _open_input_windows else None
+    )
     input_window.show()

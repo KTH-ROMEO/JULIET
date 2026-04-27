@@ -46,7 +46,7 @@ class Argument_ID(Enum):
     N_SKIP_ARG_ID                           = 0x05
     N_F_ARG_ID                              = 0x06
     N_POINTS_ARG_ID                         = 0x07
-    N_SAMPLES_PER_STEP_ARG_ID               = 0x0A 
+    N_SAMPLES_PER_STEP_ARG_ID               = 0x08 
     
     MACRO_SUBOP_ARG_ID                      = 0x0B
 

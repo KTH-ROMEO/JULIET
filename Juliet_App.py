@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
                              QTextEdit, QPushButton, QListWidget, QLabel, QSplitter, QListWidgetItem, QGridLayout)
 
 from PyQt5.QtGui import QBrush, QColor
-from PyQt5.QtCore import QTimer, Qt
+from PyQt5.QtCore import QTimer, Qt, pyqtSignal
 from PUS import *
 from SPP import *
 from crc import Calculator, Crc16
@@ -23,6 +23,10 @@ from FM_Buttons import *
 ENABLE_CB = False
 
 class SerialApp(QWidget):
+
+    # Signal emitted by the serial thread; main thread receives and updates the GUI
+    _packet_received = pyqtSignal(bytes, str, str)  # (raw_buffer, label_text, color)
+
     def __init__(self):
         super().__init__()
         self.messages = []  # Stores tuples of (raw_bytes, spp_header, pus_header)
@@ -30,6 +34,7 @@ class SerialApp(QWidget):
         self.init_serial()
         self.Sweep_Tables = Sweep_Tables()
         self.macro_sweep = MacroSweepCollector()
+        self._packet_received.connect(self._add_list_item)
 
     def init_ui(self):
         self.setWindowTitle("JULIET")
@@ -330,52 +335,45 @@ class SerialApp(QWidget):
                             if spp_header.packet_type == 0 and spp_header.sec_head_flag == 1:
                                 if pus_header.service_id == 1:
                                     if(pus_header.subtype_id == 1):
-                                        item = QListWidgetItem(f"Received: ACK ACC OK {hex_str}")  # Create a list item
+                                        label = f"Received: ACK ACC OK {hex_str}"
                                     elif(pus_header.subtype_id == 2):
-                                        item = QListWidgetItem(f"Received: ACK ACC FAIL {hex_str}")  # Create a list item
+                                        label = f"Received: ACK ACC FAIL {hex_str}"
                                     elif(pus_header.subtype_id == 3):
-                                        item = QListWidgetItem(f"Received: ACK START OK {hex_str}")  # Create a list item
+                                        label = f"Received: ACK START OK {hex_str}"
                                     elif(pus_header.subtype_id == 5):
-                                        item = QListWidgetItem(f"Received: ACK EXE OK {hex_str}")  # Create a list item
+                                        label = f"Received: ACK EXE OK {hex_str}"
                                     elif(pus_header.subtype_id == 7):
-                                        item = QListWidgetItem(f"Received: ACK FINISH OK {hex_str}")  # Create a list item
+                                        label = f"Received: ACK FINISH OK {hex_str}"
                                     elif(pus_header.subtype_id == 8):
-                                        item = QListWidgetItem(f"Received: ACK FINISH FAIL {hex_str}")  # Create a list item
-                                    item.setForeground(QBrush(QColor("purple")))  # Set text color to blue
+                                        label = f"Received: ACK FINISH FAIL {hex_str}"
+                                    else:
+                                        label = f"Received: {hex_str}"
+                                    self._packet_received.emit(bytes(buffer), label, "purple")
                                 else:
-                                    # if spp_header.packet_type == 0 and pus_header.service_id == 8 and pus_header.subtype_id == 1:
-                                    #     self.Sweep_Tables.Table[decoded[16]][decoded[17]] = decoded[18]<<8 | decoded[19]
-                                    item = QListWidgetItem(f"Received: {hex_str}")  # Create a list item
-                                    item.setForeground(QBrush(QColor("blue")))  # Set text color to blue
-                                self.msg_list.addItem(item)
+                                    self._packet_received.emit(bytes(buffer), f"Received: {hex_str}", "blue")
 
                             elif spp_header.packet_type == 0 and spp_header.sec_head_flag == 0:
                                 print(hex_decoded)      # print full decoded packet
                                 if len(decoded) > 10 and decoded[6] == Function_ID.MACRO_SWEEP_BIAS_CONFIG.value:
-                                    self.macro_sweep.process_macro_tm_packets(decoded)     # pass to macrosweep collector
+                                    self.macro_sweep.process_macro_tm_packets(decoded)     # safe: no GUI touch
 
-                                    item = QListWidgetItem(f"Received: {hex_str}")
-                                    item.setForeground(QBrush(QColor("darkGray")))      # color 
-                                    self.msg_list.addItem(item)
-
-                                    subop = decoded[7]      # check subop
+                                    subop = decoded[7]
                                     saved_files = self.macro_sweep.save_macro_data(subop)
 
-                                    for path in saved_files:        # save confirmation in GUI
+                                    self._packet_received.emit(bytes(buffer), f"Received: {hex_str}", "darkGray")
+
+                                    for path in saved_files:
                                         print(f"Macro table saved: {path}")
-                                        save_item = QListWidgetItem(f"File Saved: {path}")
-                                        save_item.setForeground(QBrush(QColor("darkGreen")))
-                                        self.msg_list.addItem(save_item)
-                                        
+                                        # reuse same buffer for the File Saved label row
+                                        self._packet_received.emit(bytes(buffer), f"File Saved: {path}", "darkGreen")
+
                                 else:
-                                    item = QListWidgetItem(f"Received: {hex_str}")  # Create a list item
-                                    item.setForeground(QBrush(QColor("red")))  # Set text color to blue
-                                    self.msg_list.addItem(item)
+                                    self._packet_received.emit(bytes(buffer), f"Received: {hex_str}", "red")
                                     if decoded[6] == Function_ID.GET_SWT_VOL_LVL_ID.value:
                                         table_id = decoded[7] if decoded[7] <= 2 else decoded[7]-0xF+2
                                         self.Sweep_Tables.Table[table_id][decoded[8]] = decoded[9]<<8 | decoded[10]
                                     elif decoded[6] == 0x09:
-                                        
+
 
                                         SC_counter = int.from_bytes(decoded[7:9], 'big')
                                         START_PACKET = True
@@ -408,13 +406,18 @@ class SerialApp(QWidget):
                         buffer = bytearray()
                         started = False
 
+    def _add_list_item(self, raw_buffer: bytes, label: str, color: str):
+        """Slot called on the main thread via signal — safe to touch Qt widgets here."""
+        item = QListWidgetItem(label)
+        item.setForeground(QBrush(QColor(color)))
+        item.setData(Qt.UserRole, raw_buffer)
+        self.msg_list.addItem(item)
+
     def show_decoded_details(self, item):
-    
-        index = self.msg_list.row(item)
-        if index >= len(self.messages):
-            return  # Handle edge cases
-        
-        raw_bytes = self.messages[index]
+
+        raw_bytes = item.data(Qt.UserRole)
+        if raw_bytes is None:
+            return
 
         decoded = cobs.decode(raw_bytes[:-1])
         spp_header = SPP_decode(decoded[:6])
@@ -544,8 +547,9 @@ class SerialApp(QWidget):
         self.ser.write(cobs_msg)
 
         self.messages.append(cobs_msg)
-        item = QListWidgetItem(f"Sent: {hex_str}")  # Create a list item
-        item.setForeground(QBrush(QColor("green")))  # Set text color to blue
+        item = QListWidgetItem(f"Sent: {hex_str}")
+        item.setForeground(QBrush(QColor("green")))
+        item.setData(Qt.UserRole, bytes(cobs_msg))
         self.msg_list.addItem(item)
 
 def main():
